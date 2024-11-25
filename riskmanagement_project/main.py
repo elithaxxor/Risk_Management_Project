@@ -1,3 +1,4 @@
+import os
 import time
 import numpy as np
 import pandas as pd
@@ -7,6 +8,16 @@ from tabulate import tabulate
 from prettytable import PrettyTable
 from dataclasses import dataclass
 
+
+
+'''
+    ------ PARAMETERS CLASS ------
+    To Save to MEMORY the parameters for the simulation.
+    Step 1: Create a class with dataclass decorator
+    Step 2: Create a class method to take user input
+    
+    --> This class be be cross called between programs 
+'''
 @dataclass
 class Parameters:
     initial_equity_price: float
@@ -46,7 +57,8 @@ class Parameters:
         )
 
 
-'''   Simulate stock prices using Geometric Brownian Motion.
+'''   ------ Geometric Brownian Motion -------
+    To Simulate stock prices using 
         step 1:craete Random increments using time ste 
         step 2: Calculate Brownian motion
         step 3: Calculate stock prices using the formula S = S0 * exp(X)
@@ -60,7 +72,8 @@ def simulate_stock_prices(inital_price, annual_expected_return, volatility, time
     new_stock_price = inital_price * np.exp(coeiff)
     return new_stock_price
 
-''' Calculate the price of a  put option using Black-Scholes formula. 
+''' 
+    --- BLACK SHOELS PUT OPTION PRICING MODEL ---
     step 1: Calculate d1 and d2
     step 2: Calculate put price using the formula
     return put price
@@ -76,6 +89,7 @@ def black_scholes_put(equity_price, put_strike, time_to_expiration, risk_free_ra
 
 
 ''' 
+    ------ PLOTTING METHOD ------
     Plot the stock prices over time using matplotlib.
     step 1: Create a DataFrame with dates and prices
     step 2: Plot the stock prices
@@ -101,6 +115,8 @@ def plot_stock_prices(prices, periods):
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f'[!] Graph saved to {output_file}')
 
+
+    ''' ----------------- RUN METHOD ----------------- '''
 def mainBuild():
     ''' INIT '''
     parameters = Parameters.from_user_input()
@@ -145,7 +161,10 @@ def mainBuild():
     # Prepare pandas DF, store results, and display table on console
     dates = pd.date_range(start='2023-01-01', periods=parameters.time_horizon_step, freq='B')  # Business days
     df = pd.DataFrame({'Date': dates, 'Stock Price': simulated_price_index})
-    df.to_csv('simulated_stock_prices.csv', index=False)
+
+    description = "simulated_stock_prices"
+    csv_filename = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.csv")
+    df.to_csv(csv_filename, index=False)
     print(f"\n\nData saved to simulated_stock_prices.csv\n\n")
 
     # Display the first few rows of the DataFrame in console
@@ -236,9 +255,10 @@ def mainBuild():
         put_table.add_row(row)
     print(put_table)
 
-    output_filename = "simulation_results.csv"
-    df.to_csv(output_filename, index=False)
-    print(f"[!] Data saved to {output_filename}")
+    description = "simulation_results.csv"
+    csv_filename = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.csv")
+    df.to_csv(csv_filename, index=False)
+    print(f"[!] Data saved to {csv_filename}")
 
     plt.figure(figsize=(12, 6))
     plt.plot(df['Date'], df['Total Position Value'], label='Total Position Value')
@@ -314,7 +334,11 @@ def main():
     # Prepare pandas DF, store results, and display table on console
     dates = pd.date_range(start='2023-01-01', periods=time_horizon_step, freq='B')  # Business days
     df = pd.DataFrame({'Date': dates, 'Stock Price': simulated_price_index})
-    df.to_csv('simulated_stock_prices.csv', index=False)
+
+
+    description = "simulated_stock_prices"
+    csv_filename = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.csv")
+    df.to_csv(csv_filename, index=False)
     print(f"\n\n [!] Data saved to simulated_stock_prices.csv\n\n")
 
     # Display the first few rows of the DataFrame
@@ -418,10 +442,11 @@ def main():
         'Action': actions[1:],  # Skip the initial action, if needed
     })
 
-    output_filename = "simulation_results.csv"
-    df.to_csv(output_filename, index=False)
-    print(f"[!] Data saved to {output_filename}")
 
+    description = "simulation_results.csv"
+    csv_filename = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.csv")
+    df.to_csv(csv_filename, index=False)
+    print(f"[!] Data saved to {csv_filename}")
 
 
     print("\n[!] Plotting the total position value over time")
@@ -437,7 +462,7 @@ def main():
 
     output_file = '90_day_position_value.png'  # Change the file extension for different formats (e.g., .pdf, .svg)
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"[!] Data saved to {output_filename}")
+    print(f"[!] Data saved to {output_file}")
 
     print("\n[!] Plotting the stock price and put strike price over time")
     plt.figure(figsize=(12, 6))
@@ -452,11 +477,35 @@ def main():
     plt.show()
     output_file = 'stock+put_price_plot.png'  # Change the file extension for different formats (e.g., .pdf, .svg)
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"[!] Data saved to {output_filename}")
+    print(f"[!] Data saved to {output_file}")
 
 
 
+def create_results_folder():
+    folder_name = "BLACK_SHOELS_RESULTS"
+    try:
+        os.makedirs(folder_name, exist_ok=True)
+        print(f"Folder '{folder_name}' created with read and write permissions.")
+        os.chmod(folder_name, 0o777)
+
+    except Exception as e:
+        print(f"An error occurred while creating the folder: {e}")
+
+
+
+''''
+   -----  MAIN METHOD TO RUN THE PROGRAM -----
+    1. Create a results folder
+    2. main() to run the program with hard coded variables
+    3. mainBuild() to take user inputs and store them in memory
+ func main() will remain commented out, unless debugging is needed 
+'''
 if __name__ == "__main__":
+    create_results_folder()
+    if not os.path.exists("BLACK_SHOELS_RESULTS"):
+        print("[!] Error: No STOCK_RESULTS folder found. Exiting.")
+        exit()
 
-    #main()
     mainBuild()
+    #main()  # Uncomment to run the program with hard-coded variables
+
