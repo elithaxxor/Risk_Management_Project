@@ -462,7 +462,7 @@ def main():
 
     output_file = '90_day_position_value.png'  # Change the file extension for different formats (e.g., .pdf, .svg)
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"[!] Data saved to {output_filename}")
+    print(f"[!] Data saved to {output_file}")
 
     print("\n[!] Plotting the stock price and put strike price over time")
     plt.figure(figsize=(12, 6))
@@ -477,7 +477,7 @@ def main():
     plt.show()
     output_file = 'stock+put_price_plot.png'  # Change the file extension for different formats (e.g., .pdf, .svg)
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"[!] Data saved to {output_filename}")
+    print(f"[!] Data saved to {output_file}")
 
 
 
