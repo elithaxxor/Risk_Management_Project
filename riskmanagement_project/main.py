@@ -111,12 +111,14 @@ def plot_stock_prices(prices, periods):
     plt.tight_layout()
     plt.show()
 
-    output_file = 'simulated_stock_prices.png'  # Change the file extension for different formats (e.g., .pdf, .svg)
+    description = 'simulated_stock_prices'
+    output_file = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.png")
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
+
     print(f'[!] Graph saved to {output_file}')
 
 
-    ''' ----------------- RUN METHOD ----------------- '''
+''' ----------------- RUN METHOD ----------------- '''
 def mainBuild():
     ''' INIT '''
     parameters = Parameters.from_user_input()
@@ -269,7 +271,8 @@ def mainBuild():
     plt.grid(True)
     plt.tight_layout()
 
-    output_file = 'total_position_value.png'  # Change the file extension for different formats (e.g., .pdf, .svg)
+    description = 'total_position_value'
+    output_file = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.png")
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f'[!] Graph saved to {output_file}')
 
@@ -285,7 +288,9 @@ def mainBuild():
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    output_file = '90_day_position_value.png'  # Change the file extension for different formats (e.g., .pdf, .svg)
+
+    description = '90_day_position_value'
+    output_file = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.png")
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f'[!] Graph saved to {output_file}')
 
@@ -460,7 +465,9 @@ def main():
     plt.tight_layout()
     plt.show()
 
-    output_file = '90_day_position_value.png'  # Change the file extension for different formats (e.g., .pdf, .svg)
+
+    description = '90_day_position_value'
+    output_file = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.png")
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"[!] Data saved to {output_file}")
 
@@ -475,7 +482,9 @@ def main():
     plt.grid(True)
     plt.tight_layout()
     plt.show()
-    output_file = 'stock+put_price_plot.png'  # Change the file extension for different formats (e.g., .pdf, .svg)
+
+    description = 'stock+put_price_plot'
+    output_file = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.png")
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"[!] Data saved to {output_file}")
 
