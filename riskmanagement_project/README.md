@@ -11,11 +11,10 @@ Table of Contents
 	•	Parameters
 	•	Running the Program
 	•	Output
-	•	Sample Graphs
 	•	Examples
 	•	Dependencies
 	•	License
- 
+
 Features
 
 	•	Simulates stock prices over a given time horizon using Geometric Brownian Motion.
@@ -52,38 +51,6 @@ Installation
 
 Usage
 
-
-Output:
-
- Graphs:
-    •	simulated_stock_prices.png: Plot of simulated stock prices over time.
-    •	total_position_value.png: Plot of the investor’s total position value over time.
-    •	stock_put_price_plot.png: Plot showing both stock price and put strike price over time.
-
- CSV Files
-	•	simulated_stock_prices.csv: Simulated stock prices over time.
-	•	simulation_results.csv: Detailed simulation results including stock price, put option value, margin interest, total position value, and actions.
-
- Console Output
-	•	Displays user-defined parameters.
-	•	Shows simulation data in tabular form.
-	•	Provides actions taken during the simulation (e.g., adjusting put options).
-
-The program generates the following outputs:
-	•	Console Output:
-	•	Displays user-defined parameters.
-	•	Shows simulation data in tabular form.
-	•	Provides actions taken during the simulation (e.g., adjusting put options).
-	•	CSV Files:
-	•	simulated_stock_prices.csv: Contains simulated stock prices over time.
-	•	simulation_results.csv: Contains detailed simulation results, including stock price, put option value, margin interest, total position value, and actions.
-	•	Graphs:
-	•	simulated_stock_prices.png: Plot of simulated stock prices over time.
-	•	total_position_value.png: Plot of the investor’s total position value over time.
-	•	stock_put_price_plot.png: Plot showing both stock price and put strike price over time.
-The graphs are saved in the same directory as the script.
-
-
 Parameters
 
 The program requires several input parameters to perform the simulation. You can either input them manually when prompted or modify the default values in the code.
@@ -101,7 +68,28 @@ The program requires several input parameters to perform the simulation. You can
 	•	Margin Requirement (margin_requirement): Percentage of the stock purchase price that must be covered by cash (e.g., 0.5 for 50%).
 	•	Margin Rate (margin_rate): Annual interest rate charged on borrowed funds (e.g., 0.05 for 5%).
 
-Example:
+
+Output
+Sample Graphs:
+    •	simulated_stock_prices.png: Plot of simulated stock prices over time.
+    •	total_position_value.png: Plot of the investor’s total position value over time.
+    •	stock_put_price_plot.png: Plot showing both stock price and put strike price over time.
+
+The program generates the following outputs:
+	•	Console Output:
+	•	Displays user-defined parameters.
+	•	Shows simulation data in tabular form.
+	•	Provides actions taken during the simulation (e.g., adjusting put options).
+	•	CSV Files:
+	•	simulated_stock_prices.csv: Contains simulated stock prices over time.
+	•	simulation_results.csv: Contains detailed simulation results, including stock price, put option value, margin interest, total position value, and actions.
+	•	Graphs:
+	•	simulated_stock_prices.png: Plot of simulated stock prices over time.
+	•	total_position_value.png: Plot of the investor’s total position value over time.
+	•	stock_put_price_plot.png: Plot showing both stock price and put strike price over time.
+The graphs are saved in the same directory as the script.
+
+Examples
     
     Sample Console Output:
     [!] Enter the following parameters:
