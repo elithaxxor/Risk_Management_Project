@@ -1,0 +1,3 @@
+([('main',
+   '/Users/adelal-aali/Documents/Risk_Management_Project/riskmanagement_project/dist/main',
+   'EXECUTABLE')],)
