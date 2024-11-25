@@ -1,4 +1,6 @@
 import datetime, traceback, requests
+import os
+
 from prettytable import PrettyTable
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -121,8 +123,9 @@ class StockData:
                 fetch_data.add_row(row)
 
             description = 'ticker_data'
-            csv_filename = f"{self.ticker}_{description}.csv"
+            csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
             self.df.to_csv(csv_filename, index=False)
+
             self.df.reset_index(inplace=True)
 
         except Exception as e:
@@ -141,7 +144,7 @@ class StockData:
                 historical_data = ticker_obj.history(start=self.start_date, end=self.end_date)
                 description = 'historical_data'
 
-                csv_filename = f"{self.ticker}_{description}.csv"
+                csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
                 historical_data.to_csv(csv_filename, index=False)
 
                 print("\n[+] Historical Data:")
@@ -161,8 +164,8 @@ class StockData:
                 description = 'basic_financials'
                 financials = ticker_obj.financials
 
-                csv_filename = f"{self.ticker}_{description}.csv"
-                financials.to_csv(f"{self.ticker}_{description}.csv", index=False)
+                csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
+                financials.to_csv(csv_filename, index=False)
 
                 print("\n[+] General Financials:\n")
                 financial_data_table = PrettyTable()
@@ -182,7 +185,7 @@ class StockData:
                 description = 'quarterly_financials'
                 quarterly_financials = ticker_obj.quarterly_financials
 
-                csv_filename = f"{self.ticker}_{description}.csv"
+                csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
                 quarterly_financials.to_csv(f"{self.ticker}_{description}.csv", index=False)
 
                 print("\n[+] Quarterly Financials:\n")
@@ -202,33 +205,41 @@ class StockData:
                 stock_info = ticker_obj.info
                 description = 'stock_info'
 
-                csv_filename = f"{self.ticker}_{description}.csv"
-                stock_info.to_csv(f"{self.ticker}_{description}.csv", index=False)
+                csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
+                stock_info.to_csv(csv_filename, index=False)
+
                 print("\n[+] Dividends+Stock_Splits:\n")
                 stock_info_table = PrettyTable()
                 stock_info.field_names = stock_info_table.columns.tolist()
+
                 for row in stock_info_table.itertuples(index=False):
                     stock_info_table.add_row(row)
                 print(f"[!] Dividends and Splits  Financials saved to:  {csv_filename}")
 
+            except Exception as e:
+                pass  # Do nothing
+
+            try:
                 '''2:  Fetch stock actions like dividends and splits '''
                 stock_actions = ticker_obj.actions
                 description = 'Dividends+Stock_Splits'
-                csv_filename = f"{self.ticker}_{description}.csv"
-                stock_actions.to_csv(f"{self.ticker}_{description}.csv", index=False)
+                csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
+                stock_actions.to_csv(csv_filename, index=False)
                 print(f"[!] Dividends and Splits  Financials saved to:  {csv_filename}")
 
-                '''3:  Fetch major holders '''
                 print("\n[+] Dividends+Stock_Splits:\n")
                 stock_actions_table = PrettyTable()
                 stock_actions.field_names = stock_actions_table.columns.tolist()
                 for row in stock_actions_table.itertuples(index=False):
                     stock_actions_table.add_row(row)
 
+
+                '''3:  Fetch major holders '''
+
                 maj_holder = ticker_obj.major_holders
                 description = 'major_holders'
-                csv_filename = f"{self.ticker}_{description}.csv"
-                maj_holder.to_csv(f"{self.ticker}_{description}.csv", index=False)
+                csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
+                maj_holder.to_csv(csv_filename, index=False)
                 print(f"[!] Major Holders saved to:  {csv_filename}")
 
                 print("\n[+] Major Holders:\n")
@@ -240,8 +251,9 @@ class StockData:
                 '''4: Fetch institutional holders '''
                 inst_holder = ticker_obj.institutional_holders
                 description = 'institutional_holders'
-                csv_filename = f"{self.ticker}_{description}.csv"
-                inst_holder.to_csv(f"{self.ticker}_{description}.csv", index=False)
+                csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
+                inst_holder.to_csv(csv_filename, index=False)
+
                 print(f"[!] Institutional Holders saved to:  {csv_filename}")
 
                 print("\n[+] Institutional Holders:\n")
@@ -250,29 +262,31 @@ class StockData:
                 for row in inst_holder_table.itertuples(index=False):
                     inst_holder_table.add_row(row)
 
-
             except Exception as e:
-                print(f"An error occurred while fetching additional data: {e}")
+                print(f"[-] An error occurred while fetching additional data: {e}")
                 traceback.print_exc()
                 exit()
+
         except Exception as e:
-            print(f"An error occurred while fetching additional data: {e}")
+            print(f"[-]An error occurred while fetching additional data: {e}")
             exit()
 
 
-    ''' SCRAPING METHODS: 
+    '''
+        ------- SCRAPING METHODS---------
         1. Financial Docs 
         2. Balance Sheet 
         3. Cash Flow 
     '''
     def scrape_financial_documents(self):
-        ticker_obj = yf.Ticker(self.ticker)
-        '''1:  Fetch financial documents'''
+        ticker_docs_obj = yf.Ticker(self.ticker)
+        '''1:  Fetch financial documents '''
         try:
-            financials = ticker_obj.financials
+            financials = ticker_docs_obj.financials
             description = 'financials'
-            csv_filename = f"{self.ticker}_{description}.csv"
-            financials.to_csv(f"{self.ticker}_{description}.csv", index=False)
+            csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
+            financials.to_csv(csv_filename, index=False)
+
             print("\n[+] Financials:\n")
             financials_table = PrettyTable()
             financials_table.field_names = financials.columns.tolist()
@@ -286,17 +300,41 @@ class StockData:
 
         ''' 2. Fetch balance sheet'''
         try:
-            balance_sheet = ticker_obj.balance_sheet
+            balance_sheet = ticker_docs_obj.balance_sheet
             description = 'balance_sheet'
-            csv_filename = f"{self.ticker}_{description}.csv"
-            balance_sheet.to_csv(f"{self.ticker}_{description}.csv", index=False)
+            csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
+            balance_sheet.to_csv(csv_filename, index=False)
+
+
             print("\n[+] Balance Sheet:\n")
             balance_sheet_table = PrettyTable()
             balance_sheet_table.field_names = balance_sheet.columns.tolist()
+
             for row in balance_sheet_table.itertuples(index=False):
                 balance_sheet_table.add_row(row)
             print(f"[!] Balance Sheet saved to {csv_filename}")
 
+        except Exception as e:
+            print(f"An error occurred while scraping balance sheet: {e}")
+            traceback.print_exc()
+
+        ''' 3. Fetch cash flow '''
+        try:
+            cash_flow = ticker_docs_obj.cashflow
+            description = 'cash_flow'
+            csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
+            cash_flow.to_csv(csv_filename, index=False)
+
+            print("\n[+] Cash Flow:\n")
+            cash_flow_table = PrettyTable()
+            cash_flow_table.field_names = cash_flow.columns.tolist()
+            for row in cash_flow_table.itertuples(index=False):
+                cash_flow_table.add_row(row)
+            print(f"[!] Cash Flow saved to {csv_filename}")
+
+        except Exception as e:
+            print(f"[-] An error occurred while scraping cash flow: {e}")
+            traceback.print_exc()
 
     def scrape_key_statistics(self):
         """Scrape key statistics from Yahoo Finance and save to CSV."""
@@ -309,14 +347,23 @@ class StockData:
             # Combine all the DataFrames in the list
             df_combined = pd.concat(df_list, ignore_index=True)
             # Save the DataFrame to a CSV file
-            csv_filename = f"{self.ticker}_key_statistics.csv"
+
+            description = "key_statistic"
+            csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
             df_combined.to_csv(csv_filename, index=False)
+
             print(f"Data saved to {csv_filename}")
 
         except Exception as e:
-            print(f"An error occurred while scraping key statistics: {e}")
+            print(f"[+] an error occurred while scraping key statistics: {e}")
             exit()
 
+
+    ''' ----------------- Calculation METHODS ----------------- 
+        1. Calculate peaks, drawdowns, significant drops, moving averages.
+        2. Plot the data.
+        3. Save the DataFrame to a CSV file.
+    '''
 
     def calculate_indicators(self):
         """Calculate peaks, drawdowns, significant drops, moving averages."""
@@ -376,65 +423,50 @@ class StockData:
             print(f"[!] Error Occurred Saving Data to CSV: {e}")
             traceback.print_exc()
 
-        """Fetch additional data like financials, actions, info."""
 
 
+    ''' ----------------- RUN METHOD ----------------- '''
     def run(self):
         print("\nFetched Data:")
         self.fetch_data()
         self.fetch_additional_data()
+        self.scrape_financial_documents()
         self.scrape_key_statistics()
 
         self.calculate_indicators()
         self.plot_data()
 
-        self.save_data_to_csv(description='historical_data')
+        #self.save_data_to_csv(description='historical_data')
+
+
+# ----------------- MAIN -----------------
+
+def create_results_folder():
+
+    folder_name = "STOCK_RESULTS"
+    try:
+        # Create the folder if it doesn't exist
+        os.makedirs(folder_name, exist_ok=True)
+
+        # Set read and write permissions
+        os.chmod(folder_name, 0o777)
+
+        print(f"Folder '{folder_name}' created with read and write permissions.")
+    except Exception as e:
+        print(f"An error occurred while creating the folder: {e}")
+
+
 
 # Example usage:
 if __name__ == "__main__":
+    create_results_folder()
+    if not os.path.exists("STOCK_RESULTS"):
+        print("[!] Error: No STOCK_RESULTS folder found. Exiting.")
+        exit()
+
+    #os.makedirs("STOCK_RESULTS", exist_ok=True)
+
     stock_data = StockData()
     stock_data.run()
 
-
-
-
-
-def get_option_data(stock_symbol, expiration_date, option_type, strike):
-    stock = yf.Ticker(stock_symbol)
-    option_chain = stock.option_chain(expiration_date)
-    options = getattr(option_chain, "calls" if option_type.startswith("call") else "puts")
-    option_data = options[options["strike"] == strike]
-    return option_data
-
-
-def get_option_history_data(contract_symbol, days_before_expiration=30):
-    option = yf.Ticker(contract_symbol)
-    option_info = option.info
-    option_expiration_date = datetime.datetime.fromtimestamp(option_info["expireDate"])
-
-    start_date = option_expiration_date - datetime.timedelta(days=days_before_expiration)
-    option_history = option.history(start=start_date)
-    return option_history
-
-
-def main(*args):
-    # Example:
-    stock_symbol = "AAPL"
-    expiration_date = "2023-10-27"
-    expiration_date = None
-    option_type = "call"
-    strike = 170.0
-
-    option_data = get_option_data(stock_symbol, expiration_date, option_type, strike)
-    for i, od in option_data.iterrows():
-        contract_symbol = od["contractSymbol"]
-        option_history = get_option_history_data(contract_symbol)
-        first_option_history = option_history.iloc[0]
-        first_option_history_date = option_history.index[0]
-        first_option_history_close = first_option_history["Close"]
-        print("For {}, the closing price was ${:.2f} on {}.".format(
-            contract_symbol,
-            first_option_history_close,
-            first_option_history_date
-        ))
 
