@@ -3,6 +3,7 @@ import traceback
 
 import yfinance as yf
 import datetime
+import pandas as pd
 
 import main
 
@@ -139,10 +140,61 @@ class OptionData(OptionInfo, StockData):
                 print(f"No historical data found for option {contract_symbol}.")
 
         print("Option data retrieval complete.")
+
         print(option_data.to_string(index=False)) # Display the option data
+        description = f"option_data+{self.stock_symbol}+{self.expiration_date}+{self.option_type}+{self.strike}"
+        csv_filename = os.path.join("OPTIONS_DATA", f"{description}.csv")
+        option_data.to_csv(csv_filename)
+        convert_csv_to_excel(csv_filename)
+        df = pd.DataFrame(option_data)
+        df.to_csv(csv_filename, 'option_dataII.csv')
+        df.to_excel('option_dataII.xlsx')
+        print(f"Option data saved to {csv_filename}")
+        return option_data
+
+
+def create_results_folder():
+    ''' 2.  CREATE RESULTS FOLDER '''
+    folder_name = "BLACK_SHOELS_RESULTS"
+
+    try:
+        os.makedirs(folder_name, exist_ok=True)
+        print(f"[+] Folder '{folder_name}'\n created with read and write permissions.")
+        os.chmod(folder_name, 0o777)
+
+    except Exception as e:
+        print(f"[!] An error occurred while creating the folder: {e}")
+        traceback.print_exc()
+
+def convert_csv_to_excel(csv_file_path, excel_file_path=None):
+    """ Convert a CSV file to an Excel file using pandas.
+    :param csv_file_path: Path to the input CSV file.
+    :param excel_file_path: Path to save the output Excel file. If None, saves in the same directory as the CSV.
+    """
+    try:
+        ''' Check if the CSV file exists '''
+        if not os.path.exists(csv_file_path):
+            print(f"Error: The file '{csv_file_path}' does not exist.")
+            return
+
+        df = pd.read_csv(csv_file_path)
+
+        # Generate Excel file path if not provided
+        if excel_file_path is None:
+            base_name = os.path.splitext(csv_file_path)[0]
+            excel_file_path = f"{base_name}.xlsx"
+
+        df.to_excel(excel_file_path, index=False, engine='openpyxl')
+        print(f"[!] Successfully converted '{csv_file_path}' to '{excel_file_path}'")
+
+    except Exception as e:
+        print(f"[-] An error in converting .CVS  to EXCEL : {e}")
+        traceback.print_exc()
 
 
 def main():
+
+    create_results_folder()
     option_data_instance = OptionData()
     option_data_instance.run()
 
