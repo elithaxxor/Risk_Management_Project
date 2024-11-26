@@ -1,3 +1,4 @@
+import os
 import traceback
 
 import yfinance as yf
@@ -70,6 +71,10 @@ class OptionData(OptionInfo, StockData):
         ''' Fetch the option chain for the specified expiration date '''
         try:
             option_chain = stock.option_chain(self.expiration_date)
+            description = f"option_data+{self.stock_symbol}+{self.expiration_date}+{self.option_type}+{self.strike}"
+            csv_filename = os.path.join("OPTIONS_DATA", f"{description}.csv")
+
+
             print(f"Fetching option data for {self.stock_symbol} with expiration date {self.expiration_date}...")
             print(f"Option type: {self.option_type}, Strike price: {self.strike}")
             print(f"Option chain: {option_chain}")
@@ -136,6 +141,10 @@ class OptionData(OptionInfo, StockData):
         print("Option data retrieval complete.")
         print(option_data.to_string(index=False)) # Display the option data
 
-if __name__ == "__main__":
-    option_data_instance = OptionInfo()
+
+def main():
+    option_data_instance = OptionData()
     option_data_instance.run()
+
+if __name__ == "__main__":
+    main()
