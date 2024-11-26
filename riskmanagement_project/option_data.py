@@ -3,6 +3,7 @@ import traceback
 import yfinance as yf
 import datetime
 
+import main
 
 ''' CLASS - OptionData 
     1. Fetch option data based on user input
@@ -20,20 +21,28 @@ import datetime
     3. Add support for fetching option data for multiple contracts
     4. Add plotting and analysis of option data
 '''
+import main
+import stock_data
+
+StockData = stock_data.StockData()
+OptionInfo = main.Parameters
+
+''' SUBCLASS - OptionData AND StockData to get the stock ticker and end date '''
 # class OptionData:
-class OptionData:
-    def __init__(self):
-        self.stock_symbol = input("[?] Enter the stock symbol (e.g., AAPL): ").strip().upper()
-        self.expiration_date = input("[?] Enter the option expiration date in YYYY-MM-DD format (or leave blank for the nearest expiration): ").strip()
+class OptionData(OptionInfo, StockData):
+    def __init__(self):  #, stock_symbol=None, expiration_date=None, option_type=None, strike=None):
+        super().__init__()
+        self.stock_symbol = StockData.get_stock_ticker()
+        self.strike = OptionInfo.strike_price_PUT#  input("[?] Enter the strike price (e.g., 170.0): ").strip()
+        self.expiration_date = StockData.get_stock_end_date()  #input("[?] Enter the option expiration date in YYYY-MM-DD format (or leave blank for the nearest expiration): ").strip()
         self.option_type = input("[?] Enter the option type (call/put): ").strip().lower()
-        self.strike = input("[?] Enter the strike price (e.g., 170.0): ").strip()
 
         # Validate and parse the strike price
-        try:
-            self.strike = float(self.strike)
-        except ValueError:
-            print("Invalid strike price. Please enter a numerical value.")
-            exit()
+        #try:
+            #self.strike = float(self.strike)
+        #except ValueError:
+         #   print("Invalid strike price. Please enter a numerical value.")
+          #  exit()
 
         # If expiration date is not provided, use the nearest expiration date
         if not self.expiration_date:
@@ -51,8 +60,7 @@ class OptionData:
         # Use the nearest expiration date if none is provided
         if not self.expiration_date:
             expirations = stock.options
-            print(f"Available expiration dates: {expirations}")
-
+            print(f"[!] Available expiration dates: {expirations}")
             if not expirations:
                 print("No option data available for this stock., program will not work right ")
 
@@ -129,5 +137,5 @@ class OptionData:
         print(option_data.to_string(index=False)) # Display the option data
 
 if __name__ == "__main__":
-    option_data_instance = OptionData()
+    option_data_instance = OptionInfo()
     option_data_instance.run()

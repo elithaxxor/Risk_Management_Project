@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import yfinance as yf
 from bs4 import BeautifulSoup as bs
-
+import stock_visiual_candlestick
 
 
 ''' 
@@ -51,6 +51,18 @@ class StockData:
         3. Parse the moving average input and return a list of integers.
         ----> EXIT SYS IF USER INPUT IS INVALID
     '''
+
+    def __str__(self):
+        return str(self.ticker) + str(self.end_date) + str(self.max_drop) + str(self.moving_averages) + str(self.df.head())
+
+    def get_stock_ticker(self):
+        return self.ticker
+    def get_stock_end_date(self):
+        return self.end_date
+    def get_stock_max_drop(self):
+        return self.max_drop
+    def get_stock_moving_averages(self):
+        return self.moving_averages
 
 
     """ 1. Parse the end date input and return a datetime object."""
@@ -477,5 +489,8 @@ if __name__ == "__main__":
 
     stock_data = StockData()
     stock_data.run()
+    candle_stick = stock_visiual_candlestick.Plot_Candlestick(stock_data.get_stock_ticker())
+
+
 
 

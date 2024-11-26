@@ -10,8 +10,10 @@ from tabulate import tabulate
 from prettytable import PrettyTable
 from dataclasses import dataclass
 import openpyxl as px
+import option_data
+import stock_data
 
-
+#OptionData = option_data.OptionData
 
 
 '''
@@ -25,7 +27,8 @@ import openpyxl as px
 
 
 @dataclass
-class Parameters:
+class Parameters():
+    stock_symbol = None
     initial_equity_price: float
     strike_price_PUT: float
     trigger_price_PUT: float
@@ -301,14 +304,9 @@ def mainBuild():
     plt.grid(True)
     plt.tight_layout()
 
-
-    if not os.path.exists("BLACK_SHOELS_RESULTS"):
-        print("[!] Error: No STOCK_RESULTS folder found. Exiting.")
-        output_file = 'total_position_value.png'
-        plt.savefig(output_file, dpi=300, bbox_inches='tight')
-
-
-
+    output_file = 'total_position_value.png'
+    plt.savefig(output_file, dpi=300, bbox_inches='tight')
+    print(f'[!] Graph saved to {output_file}')
     plt.show()
 
     print("Plotting the stock price and put strike price over time")
@@ -594,5 +592,17 @@ if __name__ == "__main__":
     # R = RocketAnimation()
     # R.run()  # Run the Rocket Animation
     mainBuild()
+
+    ''' PARSE DATA FOR OPTION AND EQUITIES 
+        SUPER CLASSES STOCK DATA INTO OPTIONS DATA SO RUN FIRST'''
+    parseOptionData = option_data.OptionData()
+    parseOptionData.run()
+
+    ParseStockData = stock_data.StockData()
+    ParseStockData.run()
+
+
+
+
     # main()  # Uncomment to run the program with hard-coded variables
 
