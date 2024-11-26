@@ -127,6 +127,8 @@ class OptionData(OptionInfo, StockData):
     def run(self):
         """Execute the workflow to fetch and display option data."""
         option_data = self.get_option_data()
+        print(f"[!] Fetching historical data for {len(option_data)} option contracts...")
+        print(f"[!] Parsing option data: {option_data}")
         for _, od in option_data.iterrows():
             contract_symbol = od["contractSymbol"]
             option_history = self.get_option_history_data(contract_symbol)
@@ -137,9 +139,10 @@ class OptionData(OptionInfo, StockData):
                 first_option_history_close = first_option_history["Close"]
                 print(f"For {contract_symbol}, the closing price was ${first_option_history_close:.2f} on {first_option_history_date.strftime('%Y-%m-%d')}.")
             else:
-                print(f"No historical data found for option {contract_symbol}.")
+                print(f"[-] No historical data found for option {contract_symbol}.")
+                #break
 
-        print("Option data retrieval complete.")
+        print("[!] Option data retrieval complete.\n\n")
 
         print(option_data.to_string(index=False)) # Display the option data
         description = f"option_data+{self.stock_symbol}+{self.expiration_date}+{self.option_type}+{self.strike}"
@@ -155,7 +158,7 @@ class OptionData(OptionInfo, StockData):
 
 def create_results_folder():
     ''' 2.  CREATE RESULTS FOLDER '''
-    folder_name = "BLACK_SHOELS_RESULTS"
+    folder_name = "OPTION_DATA"
 
     try:
         os.makedirs(folder_name, exist_ok=True)
