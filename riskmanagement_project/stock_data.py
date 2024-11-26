@@ -117,15 +117,10 @@ class StockData:
             print("\n[+] Fetched Data:")
             # Display the first few rows of the DataFrame in console
 
-            fetch_data = PrettyTable()
-            fetch_data.field_names = self.df.columns.tolist()
-            for row in self.df.itertuples(index=False):
-                fetch_data.add_row(row)
-
             description = 'ticker_data'
             csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
             self.df.to_csv(csv_filename, index=False)
-
+            convert_csv_to_excel(csv_filename)
             self.df.reset_index(inplace=True)
 
         except Exception as e:
@@ -146,6 +141,7 @@ class StockData:
 
                 csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
                 historical_data.to_csv(csv_filename, index=False)
+                convert_csv_to_excel(csv_filename)
 
                 print("\n[+] Historical Data:")
                 historical_data_table = PrettyTable()
@@ -166,13 +162,10 @@ class StockData:
 
                 csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
                 financials.to_csv(csv_filename, index=False)
+                convert_csv_to_excel(csv_filename)
 
                 print("\n[+] General Financials:\n")
-                financial_data_table = PrettyTable()
-                financial_data_table.field_names = financial_data_table.columns.tolist()
 
-                for row in financial_data_table.itertuples(index=False):
-                    financial_data_table.add_row(row)
 
                 print(f"[!] General Finances saved to {csv_filename}")
 
@@ -186,14 +179,10 @@ class StockData:
                 quarterly_financials = ticker_obj.quarterly_financials
 
                 csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
-                quarterly_financials.to_csv(f"{self.ticker}_{description}.csv", index=False)
+                quarterly_financials.to_csv(csv_filename, index=False)
+                convert_csv_to_excel(csv_filename)
 
                 print("\n[+] Quarterly Financials:\n")
-                quarterly_financials_table = PrettyTable()
-                quarterly_financials.field_names = quarterly_financials_table.columns.tolist()
-                for row in quarterly_financials_table.itertuples(index=False):
-                    quarterly_financials_table.add_row(row)
-
                 print(f"[!] Quareterly Financials saved to:  {csv_filename}")
 
             except Exception as e:
@@ -207,6 +196,8 @@ class StockData:
 
                 csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
                 stock_info.to_csv(csv_filename, index=False)
+                convert_csv_to_excel(csv_filename)
+
 
                 print("\n[+] Dividends+Stock_Splits:\n")
                 stock_info_table = PrettyTable()
@@ -225,13 +216,11 @@ class StockData:
                 description = 'Dividends+Stock_Splits'
                 csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
                 stock_actions.to_csv(csv_filename, index=False)
+                convert_csv_to_excel(csv_filename)
+
                 print(f"[!] Dividends and Splits  Financials saved to:  {csv_filename}")
 
                 print("\n[+] Dividends+Stock_Splits:\n")
-                stock_actions_table = PrettyTable()
-                stock_actions.field_names = stock_actions_table.columns.tolist()
-                for row in stock_actions_table.itertuples(index=False):
-                    stock_actions_table.add_row(row)
 
 
                 '''3:  Fetch major holders '''
@@ -240,13 +229,11 @@ class StockData:
                 description = 'major_holders'
                 csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
                 maj_holder.to_csv(csv_filename, index=False)
-                print(f"[!] Major Holders saved to:  {csv_filename}")
+                convert_csv_to_excel(csv_filename)
 
+                print(f"[!] Major Holders saved to:  {csv_filename}")
                 print("\n[+] Major Holders:\n")
-                maj_holder_table = PrettyTable()
-                maj_holder_table.field_names = maj_holder_table.columns.tolist()
-                for row in maj_holder_table.itertuples(index=False):
-                    maj_holder_table.add_row(row)
+
 
                 '''4: Fetch institutional holders '''
                 inst_holder = ticker_obj.institutional_holders
@@ -257,10 +244,7 @@ class StockData:
                 print(f"[!] Institutional Holders saved to:  {csv_filename}")
 
                 print("\n[+] Institutional Holders:\n")
-                inst_holder_table = PrettyTable()
-                inst_holder_table.field_names = inst_holder_table.columns.tolist()
-                for row in inst_holder_table.itertuples(index=False):
-                    inst_holder_table.add_row(row)
+
 
             except Exception as e:
                 print(f"[-] An error occurred while fetching additional data: {e}")
@@ -286,12 +270,10 @@ class StockData:
             description = 'financials'
             csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
             financials.to_csv(csv_filename, index=False)
+            convert_csv_to_excel(csv_filename)
 
             print("\n[+] Financials:\n")
-            financials_table = PrettyTable()
-            financials_table.field_names = financials.columns.tolist()
-            for row in financials_table.itertuples(index=False):
-                financials_table.add_row(row)
+
             print(f"[!] Financials saved to {csv_filename}")
 
         except Exception as e:
@@ -304,14 +286,11 @@ class StockData:
             description = 'balance_sheet'
             csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
             balance_sheet.to_csv(csv_filename, index=False)
+            convert_csv_to_excel(csv_filename)
 
 
             print("\n[+] Balance Sheet:\n")
-            balance_sheet_table = PrettyTable()
-            balance_sheet_table.field_names = balance_sheet.columns.tolist()
 
-            for row in balance_sheet_table.itertuples(index=False):
-                balance_sheet_table.add_row(row)
             print(f"[!] Balance Sheet saved to {csv_filename}")
 
         except Exception as e:
@@ -324,13 +303,8 @@ class StockData:
             description = 'cash_flow'
             csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
             cash_flow.to_csv(csv_filename, index=False)
+            convert_csv_to_excel(csv_filename)
 
-            print("\n[+] Cash Flow:\n")
-            cash_flow_table = PrettyTable()
-            cash_flow_table.field_names = cash_flow.columns.tolist()
-            for row in cash_flow_table.itertuples(index=False):
-                cash_flow_table.add_row(row)
-            print(f"[!] Cash Flow saved to {csv_filename}")
 
         except Exception as e:
             print(f"[-] An error occurred while scraping cash flow: {e}")
@@ -351,6 +325,7 @@ class StockData:
             description = "key_statistic"
             csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
             df_combined.to_csv(csv_filename, index=False)
+            convert_csv_to_excel(csv_filename)
 
             print(f"Data saved to {csv_filename}")
 
@@ -418,6 +393,8 @@ class StockData:
         try:
             csv_filename = f"{self.ticker}_{description}.csv"
             self.df.to_csv(csv_filename, index=False)
+            convert_csv_to_excel(csv_filename)
+
             print(f"Data saved to {csv_filename}")
         except Exception as e:
             print(f"[!] Error Occurred Saving Data to CSV: {e}")
@@ -439,7 +416,12 @@ class StockData:
         #self.save_data_to_csv(description='historical_data')
 
 
-# ----------------- MAIN -----------------
+''' ----------------- Helper Methods ----------------- 
+
+    1. Create a results folder to store the data.
+    2. Covert CSV to Excel 
+    '''
+
 
 def create_results_folder():
 
@@ -451,11 +433,38 @@ def create_results_folder():
         # Set read and write permissions
         os.chmod(folder_name, 0o777)
 
-        print(f"Folder '{folder_name}' created with read and write permissions.")
+        print(f"Folder '{folder_name}' created with read and write permissions.\n {os.getcwd()}/{folder_name}\n\n ")
     except Exception as e:
         print(f"An error occurred while creating the folder: {e}")
 
+def convert_csv_to_excel(csv_file_path, excel_file_path=None):
+    """ Convert a CSV file to an Excel file using pandas.
+    :param csv_file_path: Path to the input CSV file.
+    :param excel_file_path: Path to save the output Excel file. If None, saves in the same directory as the CSV.
+    """
+    try:
+        ''' Check if the CSV file exists '''
+        if not os.path.exists(csv_file_path):
+            print(f"Error: The file '{csv_file_path}' does not exist.")
+            return
 
+        df = pd.read_csv(csv_file_path)
+
+        # Generate Excel file path if not provided
+        if excel_file_path is None:
+            base_name = os.path.splitext(csv_file_path)[0]
+            excel_file_path = f"{base_name}.xlsx"
+
+        df.to_excel(excel_file_path, index=False, engine='openpyxl')
+        print(f"[!] Successfully converted '{csv_file_path}' to '{excel_file_path}'")
+
+    except Exception as e:
+        print(f"[-] An error in converting .CVS  to EXCEL : {e}")
+        traceback.print_exc()
+
+
+
+# ----------------- MAIN -----------------
 
 # Example usage:
 if __name__ == "__main__":

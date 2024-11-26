@@ -1,5 +1,7 @@
 import os
 import time
+import traceback
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -7,6 +9,8 @@ from scipy.stats import norm
 from tabulate import tabulate
 from prettytable import PrettyTable
 from dataclasses import dataclass
+import openpyxl as px
+
 
 
 
@@ -15,9 +19,11 @@ from dataclasses import dataclass
     To Save to MEMORY the parameters for the simulation.
     Step 1: Create a class with dataclass decorator
     Step 2: Create a class method to take user input
-    
+
     --> This class be be cross called between programs 
 '''
+
+
 @dataclass
 class Parameters:
     initial_equity_price: float
@@ -64,13 +70,17 @@ class Parameters:
         step 3: Calculate stock prices using the formula S = S0 * exp(X)
         return stock prices (s)
  '''
-def simulate_stock_prices(inital_price, annual_expected_return, volatility, time_horizon_annual, adjusted_time_step, time_step):
+
+
+def simulate_stock_prices(inital_price, annual_expected_return, volatility, time_horizon_annual, adjusted_time_step,
+                          time_step):
     t = np.linspace(0, time_horizon_annual, time_step)
     randomness = np.random.standard_normal(size=time_step)
     randomness = np.cumsum(randomness) * np.sqrt(adjusted_time_step)
     coeiff = (annual_expected_return - 0.5 * volatility ** 2) * t + volatility * randomness
     new_stock_price = inital_price * np.exp(coeiff)
     return new_stock_price
+
 
 ''' 
     --- BLACK SHOELS PUT OPTION PRICING MODEL ---
@@ -79,10 +89,12 @@ def simulate_stock_prices(inital_price, annual_expected_return, volatility, time
     return put price
 '''
 
+
 def black_scholes_put(equity_price, put_strike, time_to_expiration, risk_free_rate, volatility):
     if time_to_expiration <= 0:
         return max(put_strike - equity_price, 0)
-    d1 = (np.log(equity_price / put_strike) + (risk_free_rate + 0.5 * volatility ** 2) * time_to_expiration) / (volatility * np.sqrt(time_to_expiration))
+    d1 = (np.log(equity_price / put_strike) + (risk_free_rate + 0.5 * volatility ** 2) * time_to_expiration) / (
+                volatility * np.sqrt(time_to_expiration))
     d2 = d1 - volatility * np.sqrt(time_to_expiration)
     put_price = put_strike * np.exp(-risk_free_rate * time_to_expiration) * norm.cdf(-d2) - equity_price * norm.cdf(-d1)
     return put_price
@@ -94,10 +106,11 @@ def black_scholes_put(equity_price, put_strike, time_to_expiration, risk_free_ra
     step 1: Create a DataFrame with dates and prices
     step 2: Plot the stock prices
     step 3: Save the plot to a file
-    
-'''
-def plot_stock_prices(prices, periods):
 
+'''
+
+
+def plot_stock_prices(prices, periods):
     dates = pd.date_range(start='2023-01-01', periods=periods, freq='B')
     df = pd.DataFrame({'Date': dates, 'Price': prices})
 
@@ -111,12 +124,21 @@ def plot_stock_prices(prices, periods):
     plt.tight_layout()
     plt.show()
 
-    output_file = 'simulated_stock_prices.png'  # Change the file extension for different formats (e.g., .pdf, .svg)
+    description = 'simulated_stock_prices'
+    #output_file = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.png")
+    output_file = f"{description}.png"
+
+
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
+
     print(f'[!] Graph saved to {output_file}')
 
-
     ''' ----------------- RUN METHOD ----------------- '''
+
+
+''' ----------------- RUN METHOD ----------------- '''
+
+
 def mainBuild():
     ''' INIT '''
     parameters = Parameters.from_user_input()
@@ -124,7 +146,6 @@ def mainBuild():
     print("\n[!] User-Defined Parameters:")
     for field, value in parameters.__dict__.items():
         print(f"{field.replace('_', ' ').title()}: {value}")
-
 
     ''' PARAMETERS '''
     adjusted_time_step = 1 / parameters.time_step  # Time step in years (assuming 252 trading days per year)
@@ -165,21 +186,26 @@ def mainBuild():
     description = "simulated_stock_prices"
     csv_filename = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.csv")
     df.to_csv(csv_filename, index=False)
-    print(f"\n\nData saved to simulated_stock_prices.csv\n\n")
+    convert_csv_to_excel(csv_filename)
+
+    print(f"\n\n Data saved to simulated_stock_prices.csv\n\n")
+
+    ''' PLOT STOCK PRICES, USING TIME_HORIZON_STEP AND SIMULATED_PRICE_INDEX '''
+    plot_stock_prices(simulated_price_index, parameters.time_horizon_step)
+
 
     # Display the first few rows of the DataFrame in console
     stock_table = PrettyTable()
     stock_table.field_names = df.columns.tolist()
     for row in df.itertuples(index=False):
         stock_table.add_row(row)
-    print(stock_table)
+   # print(stock_table)
 
-    ''' PLOT STOCK PRICES, USING TIME_HORIZON_STEP AND SIMULATED_PRICE_INDEX '''
-    plot_stock_prices(simulated_price_index, parameters.time_horizon_step)
 
     '''  Initial put option '''
     T_initial = parameters.time_horizon * adjusted_time_step  # Time to expiration in years
-    put_price = black_scholes_put(parameters.initial_equity_price, parameters.strike_price_PUT, T_initial, parameters.risk_free_rate, parameters.volatility)
+    put_price = black_scholes_put(parameters.initial_equity_price, parameters.strike_price_PUT, T_initial,
+                                  parameters.risk_free_rate, parameters.volatility)
     put_option_value = parameters.num_puts * 100 * put_price
     current_put_strike = parameters.strike_price_PUT
     action = f'Bought initial puts at {parameters.strike_price_PUT}'
@@ -204,7 +230,8 @@ def mainBuild():
             print("... Selling puts and buying new puts with higher strike price")
             time.sleep(.1)
 
-            put_price_sell = black_scholes_put(day_stock, parameters.strike_price_PUT, adjusted_time_to_expiration, parameters.risk_free_rate, parameters.volatility)
+            put_price_sell = black_scholes_put(day_stock, parameters.strike_price_PUT, adjusted_time_to_expiration,
+                                               parameters.risk_free_rate, parameters.volatility)
             proceeds = parameters.num_puts * 100 * put_price_sell
             print(f"\n[+] Sold puts at ${parameters.strike_price_PUT} for ${proceeds:.2f}")
             time.sleep(.25)
@@ -213,20 +240,23 @@ def mainBuild():
             current_put_strike = parameters.trigger_price_PUT
             remaining_days = parameters.time_horizon - day
             T_new = remaining_days * adjusted_time_step
-            put_price_buy = black_scholes_put(day_stock, parameters.trigger_price_PUT, T_new, parameters.risk_free_rate, parameters.volatility)
+            put_price_buy = black_scholes_put(day_stock, parameters.trigger_price_PUT, T_new, parameters.risk_free_rate,
+                                              parameters.volatility)
             put_option_value = parameters.num_puts * 100 * put_price_buy
 
             print(f".. Bought puts at K=${parameters.trigger_price_PUT} for ${put_option_value:.2f}")
             time.sleep(.25)
 
-            print(f"\n[RESULTS] \n[+] Day {day} Bought puts at ${parameters.trigger_price_PUT} for ${put_option_value:.2f}")
+            print(
+                f"\n[RESULTS] \n[+] Day {day} Bought puts at ${parameters.trigger_price_PUT} for ${put_option_value:.2f}")
 
             action = (f' [+] DAY: {day} Bought puts at K=${parameters.trigger_price_PUT} for ${put_option_value:.2f}, '
                       f'[PRICE ACTION] Sold puts at ${parameters.strike_price_PUT}, bought puts at ${parameters.trigger_price_PUT}')
             print("[+] Price Action: ", action)
         else:
             # Update put option value
-            put_price_current = black_scholes_put(day_stock, current_put_strike, adjusted_time_to_expiration, parameters.risk_free_rate, parameters.volatility)
+            put_price_current = black_scholes_put(day_stock, current_put_strike, adjusted_time_to_expiration,
+                                                  parameters.risk_free_rate, parameters.volatility)
             put_option_value = parameters.num_puts * 100 * put_price_current
             action = '[!] No need for action today'
             print("[+]\n Price Action: ", action)
@@ -255,9 +285,11 @@ def mainBuild():
         put_table.add_row(row)
     print(put_table)
 
-    description = "simulation_results.csv"
+    description = "simulation_results"
     csv_filename = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.csv")
     df.to_csv(csv_filename, index=False)
+    convert_csv_to_excel(csv_filename)
+
     print(f"[!] Data saved to {csv_filename}")
 
     plt.figure(figsize=(12, 6))
@@ -269,9 +301,13 @@ def mainBuild():
     plt.grid(True)
     plt.tight_layout()
 
-    output_file = 'total_position_value.png'  # Change the file extension for different formats (e.g., .pdf, .svg)
-    plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f'[!] Graph saved to {output_file}')
+
+    if not os.path.exists("BLACK_SHOELS_RESULTS"):
+        print("[!] Error: No STOCK_RESULTS folder found. Exiting.")
+        output_file = 'total_position_value.png'
+        plt.savefig(output_file, dpi=300, bbox_inches='tight')
+
+
 
     plt.show()
 
@@ -285,7 +321,8 @@ def mainBuild():
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    output_file = '90_day_position_value.png'  # Change the file extension for different formats (e.g., .pdf, .svg)
+
+    output_file = '90_day_position_value.png'
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f'[!] Graph saved to {output_file}')
 
@@ -314,7 +351,7 @@ def main():
 
     adjusted_time_step = 1 / time_step  # Time step in years (assuming 252 trading days per year)
 
-   # adjusted_time_step = 1 / parameters.time_step  # Time step in years (assuming 252 trading days per year)
+    # adjusted_time_step = 1 / parameters.time_step  # Time step in years (assuming 252 trading days per year)
 
     # Initialize variables
     position_values = []
@@ -329,16 +366,19 @@ def main():
     ''' Step 1: Simulate Prices, Step 2: Prepare DataFrames, Step 3: Display Table and save data  '''
     # Simulate Prices
     np.random.seed(42)  # For reproducibility
-    simulated_price_index = simulate_stock_prices(initial_equity_price, annual_expected_return, volatility, time_horizon * adjusted_time_step, adjusted_time_step, time_horizon_step)
+    simulated_price_index = simulate_stock_prices(initial_equity_price, annual_expected_return, volatility,
+                                                  time_horizon * adjusted_time_step, adjusted_time_step,
+                                                  time_horizon_step)
 
     # Prepare pandas DF, store results, and display table on console
     dates = pd.date_range(start='2023-01-01', periods=time_horizon_step, freq='B')  # Business days
     df = pd.DataFrame({'Date': dates, 'Stock Price': simulated_price_index})
 
-
     description = "simulated_stock_prices"
     csv_filename = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.csv")
     df.to_csv(csv_filename, index=False)
+    convert_csv_to_excel(csv_filename)
+
     print(f"\n\n [!] Data saved to simulated_stock_prices.csv\n\n")
 
     # Display the first few rows of the DataFrame
@@ -352,11 +392,10 @@ def main():
     ''' PLOT STOCK PRICES, USING TIME_HORIZON_STEP AND SIMULATED_PRICE_INDEX '''
     plot_stock_prices(simulated_price_index, time_horizon_step)
 
-
-
     # Initial put option
     expiration_T_annualized = time_horizon * adjusted_time_step  # Time to expiration in years
-    put_price = black_scholes_put(initial_equity_price, strike_price_PUT, expiration_T_annualized, risk_free_rate, volatility)
+    put_price = black_scholes_put(initial_equity_price, strike_price_PUT, expiration_T_annualized, risk_free_rate,
+                                  volatility)
     put_option_value = num_puts * 100 * put_price
     current_put_strike = strike_price_PUT
     action = f'Bought initial puts at {strike_price_PUT}'
@@ -381,7 +420,8 @@ def main():
             print("... Selling puts and buying new puts with higher strike price")
             time.sleep(.1)
 
-            put_price_sell = black_scholes_put(day_stock, strike_price_PUT, adjusted_time_to_expiration, risk_free_rate, volatility)
+            put_price_sell = black_scholes_put(day_stock, strike_price_PUT, adjusted_time_to_expiration, risk_free_rate,
+                                               volatility)
             proceeds = num_puts * 100 * put_price_sell
             print(f"\n[+] Sold puts at ${strike_price_PUT} for ${proceeds:.2f}")
             time.sleep(.25)
@@ -403,7 +443,8 @@ def main():
             print("[+] Price Action: ", action)
         else:
             # Update put option value
-            put_price_current = black_scholes_put(day_stock, current_put_strike, adjusted_time_to_expiration, risk_free_rate, volatility)
+            put_price_current = black_scholes_put(day_stock, current_put_strike, adjusted_time_to_expiration,
+                                                  risk_free_rate, volatility)
             put_option_value = num_puts * 100 * put_price_current
             action = '[!] No need for action today'
             print("[+]\n Price Action: ", action)
@@ -442,12 +483,13 @@ def main():
         'Action': actions[1:],  # Skip the initial action, if needed
     })
 
-
-    description = "simulation_results.csv"
+    description = "simulation_results"
     csv_filename = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.csv")
-    df.to_csv(csv_filename, index=False)
-    print(f"[!] Data saved to {csv_filename}")
+    file = df.to_csv(csv_filename, index=False)
 
+    convert_csv_to_excel(csv_filename)
+
+    print(f"[!] Data saved to {csv_filename}")
 
     print("\n[!] Plotting the total position value over time")
     plt.figure(figsize=(12, 6))
@@ -460,7 +502,9 @@ def main():
     plt.tight_layout()
     plt.show()
 
-    output_file = '90_day_position_value.png'  # Change the file extension for different formats (e.g., .pdf, .svg)
+    description = '90_day_position_value'
+    output_file = '90_day_position_value.png'
+   # output_file = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.png")
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"[!] Data saved to {output_file}")
 
@@ -475,24 +519,64 @@ def main():
     plt.grid(True)
     plt.tight_layout()
     plt.show()
-    output_file = 'stock+put_price_plot.png'  # Change the file extension for different formats (e.g., .pdf, .svg)
+
+    description = 'stock+put_price_plot'
+    output_file = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.png")
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"[!] Data saved to {output_file}")
 
 
+'''--------------- HELPER FUNCTIONS ----------------
+   
+    1. Convert CSV to Excel
+    2. Create Results Folder
+    3. Main Method to run the program 
+'''
+
+
+def convert_csv_to_excel(csv_file_path, excel_file_path=None):
+    """ Convert a CSV file to an Excel file using pandas.
+    :param csv_file_path: Path to the input CSV file.
+    :param excel_file_path: Path to save the output Excel file. If None, saves in the same directory as the CSV.
+    """
+    try:
+        ''' Check if the CSV file exists '''
+        if not os.path.exists(csv_file_path):
+            print(f"Error: The file '{csv_file_path}' does not exist.")
+            return
+
+        df = pd.read_csv(csv_file_path)
+
+        # Generate Excel file path if not provided
+        if excel_file_path is None:
+            base_name = os.path.splitext(csv_file_path)[0]
+            excel_file_path = f"{base_name}.xlsx"
+
+        df.to_excel(excel_file_path, index=False, engine='openpyxl')
+        print(f"[!] Successfully converted '{csv_file_path}' to '{excel_file_path}'")
+
+    except Exception as e:
+        print(f"[-] An error in converting .CVS  to EXCEL : {e}")
+        traceback.print_exc()
+
 
 def create_results_folder():
+    ''' 2.  CREATE RESULTS FOLDER '''
     folder_name = "BLACK_SHOELS_RESULTS"
+
     try:
         os.makedirs(folder_name, exist_ok=True)
-        print(f"Folder '{folder_name}' created with read and write permissions.")
+        print(f"[+] Folder '{folder_name}'\n created with read and write permissions.")
         os.chmod(folder_name, 0o777)
 
     except Exception as e:
-        print(f"An error occurred while creating the folder: {e}")
+        print(f"[!] An error occurred while creating the folder: {e}")
+        traceback.print_exc()
 
 
-
+''' -------------------------------------------------------- '''
+''' 
+    MAIN METHOD TO RUN THE PROGRAM '''
 ''''
    -----  MAIN METHOD TO RUN THE PROGRAM -----
     1. Create a results folder
@@ -501,11 +585,14 @@ def create_results_folder():
  func main() will remain commented out, unless debugging is needed 
 '''
 if __name__ == "__main__":
+
     create_results_folder()
     if not os.path.exists("BLACK_SHOELS_RESULTS"):
         print("[!] Error: No STOCK_RESULTS folder found. Exiting.")
-        exit()
 
+
+    # R = RocketAnimation()
+    # R.run()  # Run the Rocket Animation
     mainBuild()
-    #main()  # Uncomment to run the program with hard-coded variables
+    # main()  # Uncomment to run the program with hard-coded variables
 
