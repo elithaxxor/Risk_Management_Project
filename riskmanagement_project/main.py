@@ -301,14 +301,9 @@ def mainBuild():
     plt.grid(True)
     plt.tight_layout()
 
-
-    if not os.path.exists("BLACK_SHOELS_RESULTS"):
-        print("[!] Error: No STOCK_RESULTS folder found. Exiting.")
-        output_file = 'total_position_value.png'
-        plt.savefig(output_file, dpi=300, bbox_inches='tight')
-
-
-
+    output_file = 'total_position_value.png'
+    plt.savefig(output_file, dpi=300, bbox_inches='tight')
+    print(f'[!] Graph saved to {output_file}')
     plt.show()
 
     print("Plotting the stock price and put strike price over time")
