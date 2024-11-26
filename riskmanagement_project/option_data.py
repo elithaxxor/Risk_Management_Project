@@ -181,7 +181,6 @@ def convert_csv_to_excel(csv_file_path, excel_file_path=None):
             return
 
         df = pd.read_csv(csv_file_path)
-
         # Generate Excel file path if not provided
         if excel_file_path is None:
             base_name = os.path.splitext(csv_file_path)[0]
