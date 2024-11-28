@@ -7,13 +7,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import yfinance as yf
 from bs4 import BeautifulSoup as bs
-#from matplotlib import DateFormatter
+# from matplotlib import DateFormatter
 # from matplotlib.finance import candlestick_ohlc
 from mplfinance.original_flavor import candlestick_ohlc
 import matplotlib.dates as mdates
 
-#from simple_regression_scratch import StockPredictor
-#from simple_regression_scratch import SimpleLinearRegressor
+# from simple_regression_scratch import StockPredictor
+# from simple_regression_scratch import SimpleLinearRegressor
 
 # import stock_visiual_candlestick
 
@@ -118,19 +118,19 @@ class StockData:
         self.moving_averages = self._parse_moving_averages(self.moving_averages_input)
         self.start_date = self.end_date - datetime.timedelta(days=365)
 
+        # self.df = None
 
-        #self.df = None
-
-        self.df = yf.download(self.ticker, start=self.start_date.strftime('%Y-%m-%d'), end=self.end_date.strftime('%Y-%m-%d'))
+        self.df = yf.download(self.ticker, start=self.start_date.strftime('%Y-%m-%d'),
+                              end=self.end_date.strftime('%Y-%m-%d'))
         self.df['Date'] = self.df.index
         self.df['Price'] = self.df['Close']
-
 
         ''' 
             1. Initialize the DataFrame ---> REMEMBER NOT TO STORE DATA IN MEMORY, USE METHODS TO ACCESS DATA
             2. DO NOT GET conventianal "df" confused with other dataframes and method calls. 
         '''
-       # self.df = None
+
+    # self.df = None
 
     ''' ----------------- PARSING METHODS ----------------- 
         1. Parse the end date input and return a datetime object.
@@ -161,7 +161,8 @@ class StockData:
     def simple_regression(self):
 
         try:
-            self.df = yf.download(self.ticker, start=self.start_date.strftime('%Y-%m-%d'), end=self.end_date.strftime('%Y-%m-%d'))
+            self.df = yf.download(self.ticker, start=self.start_date.strftime('%Y-%m-%d'),
+                                  end=self.end_date.strftime('%Y-%m-%d'))
             self.df['Date'] = self.df.index
             self.df['Price'] = self.df['Close']
 
@@ -181,8 +182,7 @@ class StockData:
 
             return self.df['Date'], self.df['Close']
 
-
-            #regression = StockPriceRegression(self.df)
+            # regression = StockPriceRegression(self.df)
 
         except Exception as e:
             print(f"Error fetching data: {e}")
@@ -257,7 +257,7 @@ class StockData:
             print(f"\n\n[-] An error occurred while saving moving averages: {e}")
             traceback.print_exc()
 
-        #return moving_averages
+        # return moving_averages
 
     ''' ----------------- FETCH METHODS ----------------- 
         1. Fetch historical data using yfinance. Store in memory AND locally 
@@ -270,24 +270,26 @@ class StockData:
         3. Display Prettify in console 
     """
 
-
     def fetch_regression_data(self, start_date=None, end_date=None):
-            """Fetch historical stock data using yfinance."""
-            if start_date is None:
-                start_date = datetime.datetime.today() - datetime.timedelta(days=365)
-            if end_date is None:
-                end_date = datetime.datetime.today()
+        """Fetch historical stock data using yfinance."""
+        if start_date is None:
+            start_date = datetime.datetime.today() - datetime.timedelta(days=365)
+        if end_date is None:
+            end_date = datetime.datetime.today()
 
-            start_date_str = self.start_date.strftime('%Y-%m-%d')
-            end_date_str = self.end_date.strftime('%Y-%m-%d')
+        # start_date_str = str(self.start_date)
+        # end_date_str = str(self.end_date)
 
-            self.df = yf.download(self.ticker, start=start_date_str, end=end_date_str)
-            if self.df.empty:
-                print(f"No data found for ticker '{self.ticker}' between {start_date} and {end_date}.")
-                return False
-            else:
-                print(f"Data fetched for ticker '{self.ticker}' between {start_date} and {end_date}.")
-                return True
+        # print(f"Fetching data for ticker '{self.ticker}' between {start_date} and {end_date}.")
+
+
+        self.df = yf.download(self.ticker, start=start_date, end=end_date, timeout=20)
+        if self.df.empty:
+            print(f"No data found for ticker '{self.ticker}' between {start_date} and {end_date}.")
+            return False
+        else:
+            print(f"Data fetched for ticker '{self.ticker}' between {start_date} and {end_date}.")
+            return True
 
     def fetch_data(self):
         try:
@@ -296,7 +298,6 @@ class StockData:
             if self.df.empty:
                 print(
                     f"[-] No data found for ticker '{self.ticker}' between {self.start_date.date()} and {self.end_date.date()}.\n Exiting.")
-
 
             print("\n[+] Fetched Data:")
             # Display the first few rows of the DataFrame in console
@@ -311,7 +312,6 @@ class StockData:
             print(f"[!] An error occurred while fetching data: {e}")
             print(f"[-] Exiting")
             traceback.print_exc()
-
 
     def fetch_additional_data(self):
         try:
@@ -568,7 +568,7 @@ class StockData:
             self.df['Peak'] = self.df['Peak'].iloc[:, 0]
 
         # Calculate drawdowns from the peaks
-       # self.df['Drawdown'] = self.df['Peak'].cummax() - self.df['Close'].cummax()
+        # self.df['Drawdown'] = self.df['Peak'].cummax() - self.df['Close'].cummax()
         # Identify periods where the drawdown is equal to or exceeds the max drop
         self.df['Significant Drop'] = self.df['Drawdown'] >= self.max_drop
 
@@ -627,18 +627,10 @@ class StockData:
         # candle_stick = stock_visiual_candlestick.Plot_Candlestick(self.ticker)
         # candle_stick.visualization()
 
-      #  self.calculate_indicators()
-      #  self.plot_data()
+    #  self.calculate_indicators()
+    #  self.plot_data()
 
-        # self.save_data_to_csv(description='historical_data')
-
-
-
-
-
-
-
-
+    # self.save_data_to_csv(description='historical_data')
 
 
 ''' ----------------- Helper Methods ----------------- 
@@ -798,6 +790,5 @@ if __name__ == "__main__":
     print("[+] Financial Data Downloading...")
     download_financial_data = FinancialDataDownloader(ticker)
     download_financial_data.download_financial_data()
-
 
     # candle_stick = stock_visiual_candlestick.Plot_Candlestick(ticker)

@@ -147,10 +147,15 @@ class StockPredictor(StockData, Parameters):
         self.regressor = SimpleLinearRegressor()
         self.X = None
         self.y = None
-        self.ticker = Parameters.stock_symbol
-        self.start_date = StockData.get_stock_start_date
-        self.end_date = StockData.get_stock_end_date
+      #  self.ticker = Parameters.stock_symbol
+        self.ticker = self.get_stock_ticker()
+        self.data = StockData()
+        self.start_date = StockData.get_stock_start_date.__str__()
+        self.end_date = StockData.get_stock_end_date.__str__()
 
+        print("DATES FOUND ARE: ", self.start_date, self.end_date)
+        print("DATES FOUND ARE: ", self.data.start_date, self.data.end_date)
+        print("TICKER FOUND IS: ", self.ticker)
 
     def prepare_data(self):
         """Prepare the data for regression analysis."""
@@ -191,10 +196,10 @@ class StockPredictor(StockData, Parameters):
     def run(self):
         """Execute the workflow of fetching data, training the model, and making predictions."""
 
-        start_date_str = self.start_date
-        end_date_str = self.end_date
+        print("DATES FOUND ARE: ", self.data.start_date, self.data.end_date)
 
-        data_fetched = self.fetch_regression_data(start_date=start_date_str, end_date=end_date_str)
+        data_fetched = self.fetch_regression_data(start_date=self.data.start_date, end_date=self.data.end_date)
+        print("[!] Data fetched for regression analysis.", data_fetched)
 
 
         print("[!] Fetching for regression data...\n dates are: ", self.start_date, self.end_date_input)
@@ -448,6 +453,7 @@ if __name__ == "__main__":
 
         def get_stock_ticker(self):
             return parameters.stock_symbol
+
 
         def get_time_horizon(self):
             return parameters.time_horizon
