@@ -41,6 +41,9 @@ st.write('''
 # st.write(b_chart)
 #
 #
+from stock_data import StockData
+from stock_data import FinancialDataDownloader
+from main import Parameters
 
 def additional_data(tickerSymbol):
     st.subheader(' [5-DAY] Stock Information [DATA FRAME]')
@@ -230,7 +233,7 @@ def main():
         stock_input = ">STOCK INPUT \n "
         print(stock_input)
         print(type(stock_input))
-        stock = st.text_area('Text Area', stock_input, height=25)
+        stock = st.text_area('Text Area', stock_input, height=80)
         stock = stock.splitlines()
         stock = stock[1:]  # isolate the the 2nd line on list to retrieve user input
         stock = str(stock)
