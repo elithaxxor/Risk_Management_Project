@@ -192,15 +192,27 @@ class StockPredictor(StockData, Parameters):
         predictions = self.regressor.predict(X_future)
         print(f"Predicted prices for days {X_future}: {predictions}")
 
-        description = f"{self.ticker}_regression_results"
-        df = pd.DataFrame({'Day': X_future, 'Predicted Price': predictions})
-
-        os.makedirs("LINEAR_REGRESSION_RESULTS", exist_ok=True)
-        csv_filename = os.path.join("LINEAR_REGRESSION_RESULTS", f"{description}.csv")
-        excel_filename = os.path.join("LINEAR_REGRESSION_RESULTS", f"{description}.xlsx")
-
-        df.to_csv(csv_filename, index=False)
-        df.to_excel(excel_filename, index=False)
+        # description = f"{self.ticker}_regression_results"
+        #
+        # df_predictions = pd.DataFrame({
+        #     'Day': X_future,
+        #     'Predicted Price': predictions
+        # })
+        #
+        # # Ensure the directory exists
+        # os.makedirs('LINEAR_REGRESSION_RESULTS', exist_ok=True)
+        #
+        # # Save the DataFrame to CSV
+        # csv_filename = os.path.join('LINEAR_REGRESSION_RESULTS', f'{self.ticker}_future_predictions.csv')
+        # df_predictions.to_csv(csv_filename, index=False)
+        # print(f"Predictions saved to {csv_filename}")
+        #
+        # # Optionally, save to Excel
+        # excel_filename = os.path.join('LINEAR_REGRESSION_RESULTS', f'{self.ticker}_future_predictions.xlsx')
+        # df_predictions.to_excel(excel_filename, index=False)
+        # print(f"Predictions also saved to {excel_filename}")
+        #
+        # os.makedirs("LINEAR_REGRESSION_RESULTS", exist_ok=True)
 
         return X_future, predictions
 

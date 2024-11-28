@@ -653,6 +653,20 @@ def create_results_folder():
     except Exception as e:
         print(f"An error occurred while creating the folder: {e}")
 
+def create_regression_folder():
+    folder_name = "LINEAR_REGRESSION_RESULTS"
+    try:
+        # Create the folder if it doesn't exist
+        os.makedirs(folder_name, exist_ok=True)
+
+        # Set read and write permissions
+        os.chmod(folder_name, 0o777)
+
+        print(f"Folder '{folder_name}' created with read and write permissions.\n {os.getcwd()}/{folder_name}\n\n ")
+    except Exception as e:
+        print(f"An error occurred while creating the folder: {e}")
+
+
 
 def convert_csv_to_excel(csv_file_path, excel_file_path=None):
     """ Convert a CSV file to an Excel file using pandas.
@@ -771,6 +785,9 @@ class StockVisualizer(StockData):
 # Example usage:
 if __name__ == "__main__":
     create_results_folder()
+
+    create_regression_folder()
+    # Create a StockData object
     if not os.path.exists("STOCK_RESULTS"):
         print("[-] Error: No STOCK_RESULTS folder found. Exiting.")
 
