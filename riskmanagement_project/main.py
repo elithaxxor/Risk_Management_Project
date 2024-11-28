@@ -589,12 +589,15 @@ if __name__ == "__main__":
     data = StockData()
     data.run()
 
-    print("RUNNING STOCK PREDICTOR CLASS")
+    print("\n [+] RUNNING STOCK PREDICTOR CLASS (LINEAR-REGRESSION)")
     linear_regressor = StockPredictor()
     linear_regressor.run()
 
+    print("\n [+] RUNNING STOCK PREDICTOR CLASS (POLYNOMIAL-REGRESSION)")
+    polynomial_regressor = StockPredictorPolynomial(ticker=parameters.stock_symbol, degree=2)
+    polynomial_regressor.run()
 
-    print("RUNNING STOCK VISUALIZER CLASS")
+    print("\n [+] RUNNING STOCK VISUALIZER CLASS")
     class runStockCandleSticks:
         def __init__(self):
             self.runCandle = StockVisualizer()
@@ -604,21 +607,16 @@ if __name__ == "__main__":
             self.runCandle.run()
 
 
-
-
-
-
-
-
-    print("ATTEMPTING TO ACCESSS STOCK DATA CLASS")
+    print("\n [+] GETTING MORE INFORMATION ON STOCKS + RUNNING VIZUALIZER CLASS")
     run_stock = StockDataFetch(parameters)
     run_stock.runClass()
     runVisualizer = runStockCandleSticks()
+    runVisualizer.run()
 
+    print("[+] DOWNLOADING FINANCIAL DATA...")
     current_ticker = run_stock.get_stock_ticker()
     download_fin_data = FinancialDataDownloader
     download_fin_data.download_financial_data(current_ticker)
-    runVisualizer.run()
 
     print("FINISHED RUNNING STOCK DATA CLASS")
 
