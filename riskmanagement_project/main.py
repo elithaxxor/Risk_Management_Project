@@ -662,6 +662,8 @@ if __name__ == "__main__":
             return str(self.data)
 
 
+        runStockData = StockData(stock_symbol="AAPL")
+
 
 
 
