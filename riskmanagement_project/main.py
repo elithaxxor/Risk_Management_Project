@@ -335,8 +335,8 @@ class PolynomialRegressor:
 
 
 class StockPredictorPolynomial(StockData):
-    def __init__(self, ticker, degree=2):
-        super().__init__(ticker)
+    def __init__(self, degree=2):
+        super().__init__()
         self.regressor = PolynomialRegressor(degree=degree)
         self.X = None
         self.y = None
@@ -689,7 +689,7 @@ if __name__ == "__main__":
     linear_regressor.run()
 
     print("\n [+] RUNNING STOCK PREDICTOR CLASS (POLYNOMIAL-REGRESSION)")
-    polynomial_regressor = StockPredictorPolynomial(ticker=parameters.stock_symbol, degree=2)
+    polynomial_regressor = StockPredictorPolynomial(degree=2)
     polynomial_regressor.run()
 
     print("\n [+] RUNNING STOCK VISUALIZER CLASS")
