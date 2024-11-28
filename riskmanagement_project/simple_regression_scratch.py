@@ -58,47 +58,12 @@ class StockPredictor(StockData, Parameters):
 
     def run(self):
         """Execute the workflow of fetching data, training the model, and making predictions."""
-        data_fetched = self.fetch_regression_data(start_date=datetime.datetime(2023, 1, 1),
-                                       end_date=datetime.datetime(2023, 12, 31))
+        data_fetched = self.fetch_regression_data(start_date=self.start_date,
+                                       end_date=self.end_date_input)
+
+        print("[!] Fetching for regression data...\n dates are: ", self.start_date, self.end_date_input)
 
 
-
-        if data_fetched:
-            self.prepare_data()
-            self.fit_model()
-            self.predict_future_prices(days_ahead=3)
-            self.plot_regression_line()
-        else:
-            print("Data fetching failed. Exiting.")
-
-
-
-    def fit_model(self):
-        """Fit the regression model using the prepared data."""
-        if self.X is not None and self.y is not None:
-            self.regressor.fit(self.X, self.y)
-        else:
-            print("Data not prepared. Cannot fit model.")
-
-    def predict_future_prices(self, days_ahead=3):
-        """Predict future stock prices for the next 'days_ahead' days."""
-        if self.X is None:
-            print("Model has not been trained or data not prepared.")
-            return
-
-        last_day = self.X[-1]
-        X_future = [last_day + i for i in range(1, days_ahead + 1)]
-        predictions = self.regressor.predict(X_future)
-        print(f"Predicted prices for days {X_future}: {predictions}")
-        return X_future, predictions
-
-    def plot_regression_line(self):
-        """Plot the regression line along with the data points."""
-        self.regressor.plot_regression_line()
-
-    def run(self):
-        """Execute the workflow of fetching data, training the model, and making predictions."""
-        data_fetched = self.fetch_data(start_date=datetime.datetime(2023, 1, 1), end_date=datetime.datetime(2023, 12, 31))
         if data_fetched:
             self.prepare_data()
             self.fit_model()
