@@ -384,24 +384,35 @@ class StockPredictorPolynomial(StockData):
         predictions = self.regressor.predict(X_future)
         print(f"Predicted prices for days {X_future}: {predictions}")
 
-        # Create a DataFrame from the predictions
-        df_predictions = pd.DataFrame({
-            'Day': X_future,
-            'Predicted Price': predictions
-        })
+        flag = False
+        if not flag:
+            try:
 
-        # Ensure the directory exists
-        os.makedirs('POLYNOMIAL_REGRESSION_RESULTS', exist_ok=True)
+                # Create a DataFrame from the predictions
+                df_predictions = pd.DataFrame({
+                    'Day': X_future,
+                    'Predicted Price': predictions
+                })
+                # Ensure the directory exists
+                os.makedirs('POLYNOMIAL_REGRESSION_RESULTS', exist_ok=True)
 
-        # Save the DataFrame to CSV
-        csv_filename = os.path.join('POLYNOMIAL_REGRESSION_RESULTS', f'{self.ticker}_future_predictions.csv')
-        df_predictions.to_csv(csv_filename, index=False)
-        print(f"Predictions saved to {csv_filename}")
+                # Save the DataFrame to CSV
 
-        # Optionally, save to Excel
-        excel_filename = os.path.join('POLYNOMIAL_REGRESSION_RESULTS', f'{self.ticker}_future_predictions.xlsx')
-        df_predictions.to_excel(excel_filename, index=False)
-        print(f"Predictions also saved to {excel_filename}")
+
+                csv_filename = os.path.join('POLYNOMIAL_REGRESSION_RESULTS', f'{self.ticker}_future_predictions.csv')
+                df_predictions.to_csv(csv_filename, index=False)
+                print(f"Predictions saved to {csv_filename}")
+
+                # Optionally, save to Excel
+                excel_filename = os.path.join('POLYNOMIAL_REGRESSION_RESULTS', f'{self.ticker}_future_predictions.xlsx')
+                df_predictions.to_excel(excel_filename, index=False)
+                print(f"Predictions also saved to {excel_filename}")
+
+        else:
+            print("Data not prepared. Cannot predict future prices.")
+            pass
+
+
 
         return X_future, predictions
 
