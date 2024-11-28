@@ -113,8 +113,26 @@ class StockData:
                 traceback.print_exc()
                 exit()
 
-        print(f"[!] Moving averages: \n {moving_averages}")
+        # Create a DataFrame from the moving averages
+
+        try:
+            description = 'moving_averages'
+            csv_file_name = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
+            excel_file_name = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.xlsx")
+
+            df = pd.DataFrame(moving_averages, columns=["Moving Average"])
+            df.to_csv(f"{csv_file_name}", index=False)
+            df.to_excel(f"{excel_file_name}.xlsx", index=False, engine='openpyxl')
+
+            print("Moving averages saved as 'moving_averages.csv' and 'moving_averages.xlsx'.")
+            print(f"[!] Moving averages: \n {moving_averages}")
+
+        except Exception as e:
+            print(f"\n\n[-] An error occurred while saving moving averages: {e}")
+            traceback.print_exc()
+
         return moving_averages
+
 
     ''' ----------------- FETCH METHODS ----------------- 
         1. Fetch historical data using yfinance. Store in memory AND locally 
