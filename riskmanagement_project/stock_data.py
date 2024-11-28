@@ -6,11 +6,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import yfinance as yf
 from bs4 import BeautifulSoup as bs
-from matplotlib import DateFormatter
-#from matplotlib.finance import candlestick_ohlc
+#from matplotlib import DateFormatter
+# from matplotlib.finance import candlestick_ohlc
 from mplfinance.original_flavor import candlestick_ohlc
+import matplotlib.dates as mdates
 
-#import stock_visiual_candlestick
+# import stock_visiual_candlestick
 
 ''' 
     ** Class to fetch stock data: STORING TO MEMORY, TO REFACTOR FOR BETTER READBILITY / ABILITY TO ACCESS DATA AMOUNGST VARYING METHODS/CALLS" 
@@ -207,7 +208,6 @@ class StockData:
 
         return moving_averages
 
-
     ''' ----------------- FETCH METHODS ----------------- 
         1. Fetch historical data using yfinance. Store in memory AND locally 
         2. Fetch additional data like financials, actions, info. Store Locally 
@@ -255,8 +255,6 @@ class StockData:
                 file_destination = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}")
                 csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
                 excel_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.xlsx")
-
-
 
                 historical_data_pd = pd.DataFrame(historical_data)
 
@@ -326,7 +324,7 @@ class StockData:
                 description = 'stock_info'
 
                 csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
-                #stock_info.to_csv(csv_filename, index=False)
+                # stock_info.to_csv(csv_filename, index=False)
                 convert_csv_to_excel(csv_filename)
 
                 print("\n[+] Dividends+Stock_Splits:\n")
@@ -355,16 +353,14 @@ class StockData:
                 '''3:  Fetch major holders '''
 
                 maj_holder = ticker_obj.major_holders
-                #holders = ticker_obj.major_holders.to_records(index=False)
+                # holders = ticker_obj.major_holders.to_records(index=False)
 
                 description = 'major_holders'
                 csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
                 excel_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.xlsx")
 
-
-
                 # Ensure destination directory exists
-                #os.makedirs(os.path.dirname(csv_filename), exist_ok=True)
+                # os.makedirs(os.path.dirname(csv_filename), exist_ok=True)
                 maj_holder.to_csv(csv_filename, index=False)
                 maj_holder.to_excel(excel_filename, index=False, engine='openpyxl')
 
@@ -561,17 +557,11 @@ class StockData:
         self.scrape_key_statistics()
 
         print("\n[+] Calculating Indicators, Plotting Data, and Saving to CSV:")
-       # candle_stick = stock_visiual_candlestick.Plot_Candlestick(self.ticker)
-       # candle_stick.visualization()
+        # candle_stick = stock_visiual_candlestick.Plot_Candlestick(self.ticker)
+        # candle_stick.visualization()
 
         self.calculate_indicators()
         self.plot_data()
-
-
-
-
-
-
 
         # self.save_data_to_csv(description='historical_data')
 
@@ -619,7 +609,6 @@ def convert_csv_to_excel(csv_file_path, excel_file_path=None):
         print(f"[-] An error in converting .CVS  to EXCEL : {e}")
         traceback.print_exc()
         pass
-
 
 
 class StockVisualizer(StockData):
@@ -708,6 +697,8 @@ class StockVisualizer(StockData):
         self.plot_candlestick()
 
         # Save the DataFrame to a CSV file
+
+
 # ----------------- MAIN -----------------
 
 # Example usage:
@@ -724,7 +715,7 @@ if __name__ == "__main__":
 
     print("[+] STOCK DATA RUN OVER ")
     ticker_addy = stock_data.get_stock_ticker()
-    ticker = stock_data.ticker # Get the ticker symbol
+    ticker = stock_data.ticker  # Get the ticker symbol
 
     print("\n\nStock Data: ", stock_data)
     print("\n\nStock Ticker: ", ticker)
@@ -734,4 +725,4 @@ if __name__ == "__main__":
     download_financial_data = FinancialDataDownloader(ticker)
     download_financial_data.download_financial_data()
 
-    #candle_stick = stock_visiual_candlestick.Plot_Candlestick(ticker)
+    # candle_stick = stock_visiual_candlestick.Plot_Candlestick(ticker)

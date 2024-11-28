@@ -18,6 +18,13 @@ from tabulate import tabulate
 from prettytable import PrettyTable
 from dataclasses import dataclass
 import openpyxl as px
+import datetime as dt
+
+#from datetime import time, datetime, timedelta
+#from matplotlib import DateFormatter
+# from matplotlib.finance import candlestick_ohlc
+from mplfinance.original_flavor import candlestick_ohlc
+import matplotlib.dates as mdates
 
 import stock_data
 from stock_data import StockData
@@ -106,8 +113,14 @@ class OptionSimulator:
 
     def plot_stock_prices(self, prices):
         """Plot the simulated stock prices over time."""
-        dates = pd.date_range(start='2023-01-01', periods=len(prices), freq='B')
+        today = dt.datetime.today()
+        formatted_date = today.strftime('%Y-%m-%d')
+
+        dates = pd.date_range(start=f'{formatted_date}', periods=len(prices), freq='B')
         df = pd.DataFrame({'Date': dates, 'Price': prices})
+
+
+
 
         plt.figure(figsize=(12, 6))
         plt.plot(df['Date'], df['Price'], label='Stock Price')
@@ -282,6 +295,8 @@ class OptionSimulator:
         print(f'[!] Graph saved to {output_file}')
         plt.show()
 
+        return simulated_price_index
+
 
 # Assuming Parameters class is defined elsewhere with a from_user_input() method
 
@@ -289,7 +304,9 @@ class OptionSimulator:
 if __name__ == "__main__":
     parameters = Parameters.from_user_input()
     simulator = OptionSimulator(parameters)
-    simulator.run_simulation()
+    stock_index = simulator.run_simulation()
+
+
 
 
     class StockDataFetch:
