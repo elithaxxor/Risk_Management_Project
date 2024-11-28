@@ -20,6 +20,76 @@ import stock_visiual_candlestick
     7. Key statistics are scraped from Yahoo Finance and saved to a CSV file. 
 '''
 
+from fpdf import FPDF
+
+
+class FinancialDataDownloader:
+    def __init__(self, ticker_symbol, output_directory="STOCK_RESULTS"):
+        self.ticker_symbol = ticker_symbol
+        self.output_directory = output_directory
+        self.ticker = yf.Ticker(ticker_symbol)
+
+        # Create output directory if it doesn't exist
+        os.makedirs(self.output_directory, exist_ok=True)
+
+    def save_to_csv(self, data, filename):
+        """Save DataFrame to CSV file if data exists."""
+        if data is not None and not data.empty:
+            file_path = os.path.join(self.output_directory, filename)
+            data.to_csv(file_path, index=True)
+            print(f"Saved {filename} to {file_path}")
+        else:
+            print(f"No data found for {filename}.")
+
+    def save_to_excel(self, data, filename):
+        """Save DataFrame to Excel file if data exists."""
+        if data is not None and not data.empty:
+            file_path = os.path.join(self.output_directory, filename)
+            data.to_excel(file_path, index=True)
+            print(f"Saved {filename} to {file_path}")
+        else:
+            print(f"No data found for {filename}.")
+
+    def save_to_pdf(self, data, filename):
+        """Save DataFrame to PDF if data exists."""
+        if data is not None and not data.empty:
+            file_path = os.path.join(self.output_directory, filename)
+            pdf = FPDF()
+            pdf.add_page()
+            pdf.set_font("Arial", size=12)
+            pdf.cell(200, 10, txt=f"Financial Data - {filename.split('.')[0]}", ln=True, align='C')
+            for i, row in data.iterrows():
+                line = f"{i}: " + ", ".join([f"{col}: {row[col]}" for col in data.columns])
+                pdf.cell(200, 10, txt=line, ln=True)
+            pdf.output(file_path)
+            print(f"Saved {filename} to {file_path}")
+        else:
+            print(f"No data found for {filename}.")
+
+    def download_financial_data(self):
+        """Download all financial data and save it in CSV, Excel, and PDF formats."""
+        financial_data = {
+            "balance_sheet": self.ticker.balance_sheet,
+            "income_statement": self.ticker.financials,
+            "cash_flow": self.ticker.cashflow,
+            "earnings": self.ticker.earnings,
+            "quarterly_earnings": self.ticker.quarterly_earnings,
+            "sustainability": self.ticker.sustainability,
+            "recommendations": self.ticker.recommendations,
+        }
+
+        for doc_name, data in financial_data.items():
+            # Generate file names
+            csv_filename = f"{self.ticker_symbol}_{doc_name}.csv"
+            excel_filename = f"{self.ticker_symbol}_{doc_name}.xlsx"
+            pdf_filename = f"{self.ticker_symbol}_{doc_name}.pdf"
+
+            self.save_to_csv(data, csv_filename)
+            self.save_to_excel(data, excel_filename)
+            self.save_to_pdf(data, pdf_filename)
+
+        print("All available financial documents have been downloaded in CSV, Excel, and PDF formats.")
+
 
 class StockData:
     def __init__(self):
@@ -178,12 +248,18 @@ class StockData:
             try:
                 historical_data = ticker_obj.history(start=self.start_date, end=self.end_date)
                 description = 'historical_data'
+                file_destination = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}")
+                csv_filename = os.path.join(file_destination, f"{self.ticker}_{description}.csv")
+                excel_filename = os.path.join(file_destination, f"{self.ticker}_{description}.xlsx")
 
-                csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
-                historical_data.to_csv(csv_filename, index=False)
-                convert_csv_to_excel(csv_filename)
 
-                print("\n[+] Historical Data:")
+                historical_data_pd = pd.DataFrame(historical_data)
+
+                # Save to CSV
+                historical_data_pd.to_csv(csv_filename, index=False)
+                historical_data_pd.to_excel(excel_filename, index=False)
+
+                print(f"\n[+] Historical Data saved to {csv_filename} and {excel_filename}")
                 historical_data_table = PrettyTable()
                 historical_data_table.field_names = historical_data.columns.tolist()
                 for row in historical_data.itertuples(index=False):
@@ -200,13 +276,20 @@ class StockData:
                 description = 'basic_financials'
                 financials = ticker_obj.financials
 
-                csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
+                if not isinstance(financials, pd.DataFrame):
+                    financials = pd.DataFrame(financials)
+
+                file_destination = "STOCK_RESULTS"  # Replace with your actual path
+
+                csv_filename = os.path.join(file_destination, f"{self.ticker}_{description}.csv")
+                excel_filename = os.path.join(file_destination, f"{self.ticker}_{description}.xlsx")
                 financials.to_csv(csv_filename, index=False)
-                convert_csv_to_excel(csv_filename)
+                financials.to_excel(excel_filename, index=False)
 
-                print("\n[+] General Financials:\n")
-
+                # Print confirmation messages
+                print("\n[+] General Financials:")
                 print(f"[!] General Finances saved to {csv_filename}")
+                print(f"[!] General Finances also saved to {excel_filename}")
 
             except Exception as e:
                 print(f"[!] Error Occurred Saving Data to CSV: {e}")
@@ -265,17 +348,32 @@ class StockData:
                 maj_holder = ticker_obj.major_holders
                 description = 'major_holders'
                 csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
-                maj_holder.to_csv(csv_filename, index=False)
-                convert_csv_to_excel(csv_filename)
+                excel_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.xlsx")
 
+                # Ensure destination directory exists
+                #os.makedirs(os.path.dirname(csv_filename), exist_ok=True)
+                maj_holder.to_csv(csv_filename, index=False)
+                maj_holder.to_excel(excel_filename, index=False, engine='openpyxl')
+
+                print(f"Major holders data saved to:\nCSV: {csv_filename}\nExcel: {excel_filename}")
                 print(f"[!] Major Holders saved to:  {csv_filename}")
                 print("\n[+] Major Holders:\n")
 
                 '''4: Fetch institutional holders '''
                 inst_holder = ticker_obj.institutional_holders
                 description = 'institutional_holders'
+                # Destination paths
                 csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
+                excel_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.xlsx")
+
+                os.makedirs(os.path.dirname(csv_filename), exist_ok=True)
+
                 inst_holder.to_csv(csv_filename, index=False)
+
+                # Save to Excel
+                inst_holder.to_excel(excel_filename, index=False, engine='openpyxl')
+
+                print(f"Institutional holders data saved to:\nCSV: {csv_filename}\nExcel: {excel_filename}")
 
                 print(f"[!] Institutional Holders saved to:  {csv_filename}")
 
@@ -477,9 +575,6 @@ def convert_csv_to_excel(csv_file_path, excel_file_path=None):
     """
     try:
         ''' Check if the CSV file exists '''
-        if not os.path.exists(csv_file_path):
-            print(f"Error: The file '{csv_file_path}' does not exist.")
-            return
 
         df = pd.read_csv(csv_file_path)
 
@@ -494,6 +589,7 @@ def convert_csv_to_excel(csv_file_path, excel_file_path=None):
     except Exception as e:
         print(f"[-] An error in converting .CVS  to EXCEL : {e}")
         traceback.print_exc()
+        pass
 
 
 # ----------------- MAIN -----------------
@@ -509,4 +605,5 @@ if __name__ == "__main__":
 
     stock_data = StockData()
     stock_data.run()
+    download_financial_data = FinancialDataDownloader(stock_data.get_stock_ticker())
     candle_stick = stock_visiual_candlestick.Plot_Candlestick(stock_data.get_stock_ticker())
