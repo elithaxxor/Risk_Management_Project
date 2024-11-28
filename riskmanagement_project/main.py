@@ -1,7 +1,7 @@
 import os
 import time
 import traceback
-
+import yfinance as yf
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -10,8 +10,10 @@ from tabulate import tabulate
 from prettytable import PrettyTable
 from dataclasses import dataclass
 import openpyxl as px
-import option_data
-import stock_data
+#from option_data import OptionData
+#from stock_data import StockData
+# import option_data
+# import stock_data
 
 #OptionData = option_data.OptionData
 
@@ -280,6 +282,38 @@ def mainBuild():
     df['Margin Interest'] = margin_interests
     df['Total Position Value'] = position_values
     df['Action'] = actions[1:]  # Skip the initial action
+    df['Date'] = pd.to_datetime(df['Date']).dt.date
+    df['Value'] = df['Total Position Value'].map('${:,.2f}'.format)
+
+    try:
+
+        data = {
+            'Date': df['Date'],
+            'Stock Price': df['Stock Price'],
+            'Put Strike Price': df['Put Strike Price'],
+            'Put Option Value': df['Put Option Value'],
+            'Margin Interest': df['Margin Interest'],
+            'Total Position Value': df['Total Position Value'],
+            'Action': df['Action'],
+            'Value': df['Value'],
+            "Position Value": position_values,
+        }
+        df = pd.DataFrame(data)
+        description = "simulation_results.csv"
+
+        csv_filename = os.path.join("BLACK_SHOELS_RESULTS", f"{description}")
+        df.to_csv(csv_filename, index=False)
+
+        excel_filename = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.xlsx")
+        df.to_excel(excel_filename, index=False, engine='openpyxl')
+        print(f"[!] Data saved to {csv_filename}")
+
+    except Exception as e:
+        print(f"[-] Error saving data to CSV: {e}")
+        traceback.print_exc()
+        pass
+
+
 
     # Display the final table
     put_table = PrettyTable()
@@ -471,6 +505,12 @@ def main():
         put_table.add_row(stock)
     print(put_table)
 
+    description = "simulation_results"
+    csv_filename = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.csv")
+    df.to_csv(csv_filename, index=False)
+    convert_csv_to_excel(csv_filename)
+
+
     df = pd.DataFrame({
         'Stock Price': simulated_price_index,
         'Date': dates,
@@ -481,9 +521,9 @@ def main():
         'Action': actions[1:],  # Skip the initial action, if needed
     })
 
-    description = "simulation_results"
+    description = "simulation_results2"
     csv_filename = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.csv")
-    file = df.to_csv(csv_filename, index=False)
+    csv_filename = df.to_csv(csv_filename, index=False)
 
     convert_csv_to_excel(csv_filename)
 
@@ -500,7 +540,6 @@ def main():
     plt.tight_layout()
     plt.show()
 
-    description = '90_day_position_value'
     output_file = '90_day_position_value.png'
    # output_file = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.png")
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
@@ -518,8 +557,12 @@ def main():
     plt.tight_layout()
     plt.show()
 
-    description = 'stock+put_price_plot'
+    description = 'stock+put_price_plot.png'
     output_file = os.path.join("BLACK_SHOELS_RESULTS", f"{description}.png")
+
+    plt.savefig(description, dpi=300, bbox_inches='tight')
+    print(f"[!] Data saved to {output_file}")
+
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"[!] Data saved to {output_file}")
 
@@ -591,15 +634,34 @@ if __name__ == "__main__":
 
     # R = RocketAnimation()
     # R.run()  # Run the Rocket Animation
+
     mainBuild()
 
-    ''' PARSE DATA FOR OPTION AND EQUITIES 
-        SUPER CLASSES STOCK DATA INTO OPTIONS DATA SO RUN FIRST'''
-    parseOptionData = option_data.OptionData()
-    parseOptionData.run()
+    class StockData:
+        def __init__(self, stock_symbol):
+            self.stock_symbol = stock_symbol
+            self.data = self.get_stock_data()
 
-    ParseStockData = stock_data.StockData()
-    ParseStockData.run()
+        @staticmethod
+        def get_stock_ticker():
+            return input("Enter Stock: ")
+
+        def get_stock_data(self):
+            stock = yf.Ticker(self.stock_symbol)
+            data = stock.history(period="1y")
+            return data
+
+        def run(self):
+            StockData.__init__(self, stock_symbol=StockData.get_stock_ticker()) # get the stock ticker
+            print("\n" , self.data)
+
+        def __repr__(self):
+            return str(self.data)
+
+        def __str__(self):
+            return str(self.data)
+
+
 
 
 

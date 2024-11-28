@@ -8,7 +8,6 @@ import yfinance as yf
 from bs4 import BeautifulSoup as bs
 import stock_visiual_candlestick
 
-
 ''' 
     ** Class to fetch stock data: STORING TO MEMORY, TO REFACTOR FOR BETTER READBILITY / ABILITY TO ACCESS DATA AMOUNGST VARYING METHODS/CALLS" 
     
@@ -20,6 +19,8 @@ import stock_visiual_candlestick
     6. The user can also save the data to a CSV file and fetch additional data like financials, actions, and info.
     7. Key statistics are scraped from Yahoo Finance and saved to a CSV file. 
 '''
+
+
 class StockData:
     def __init__(self):
         """Initialize the class and prompt the user for input."""
@@ -44,7 +45,6 @@ class StockData:
         '''
         self.df = None
 
-
     ''' ----------------- PARSING METHODS ----------------- 
         1. Parse the end date input and return a datetime object.
         2. Parse the max drop input and return it as a float. ( THERE IS A BUG HERE ) 
@@ -53,19 +53,23 @@ class StockData:
     '''
 
     def __str__(self):
-        return str(self.ticker) + str(self.end_date) + str(self.max_drop) + str(self.moving_averages) + str(self.df.head())
+        return str(self.ticker) + str(self.end_date) + str(self.max_drop) + str(self.moving_averages) + str(
+            self.df.head())
 
     def get_stock_ticker(self):
         return self.ticker
+
     def get_stock_end_date(self):
         return self.end_date
+
     def get_stock_max_drop(self):
         return self.max_drop
+
     def get_stock_moving_averages(self):
         return self.moving_averages
 
-
     """ 1. Parse the end date input and return a datetime object."""
+
     def _parse_end_date(self, end_date_input):
         if end_date_input.strip() == '':
             print(f"[!] No end date entered. Proceeding with today's date.\n")
@@ -79,8 +83,10 @@ class StockData:
             exit()
 
     """2. Parse the max drop input and return it as a float."""
+
     def _parse_max_drop(self, max_drop_input):
         try:
+            print(f"[+] Maximum Drop Amount: {max_drop_input}")
             return float(max_drop_input)
         except ValueError:
             print("[-] Invalid input for maximum drop amount. Please enter a numerical value. \n Exiting.")
@@ -88,6 +94,7 @@ class StockData:
             exit()
 
     """3. Parse the moving average input and return a list of integers."""
+
     def _parse_moving_averages(self, moving_averages_input):
 
         if not moving_averages_input.strip():
@@ -98,6 +105,8 @@ class StockData:
         for ma in moving_averages_input.split(','):
             try:
                 moving_averages.append(int(ma.strip()))
+                print(f"[+] Moving Average: {ma}")
+
 
             except ValueError:
                 print(f"[-] Invalid moving average period: {ma}. Please enter integer values. \n Exiting.")
@@ -117,14 +126,15 @@ class StockData:
         2. Store locally 
         3. Display Prettify in console 
     """
+
     def fetch_data(self):
         try:
             self.df = yf.download(self.ticker, start=self.start_date, end=self.end_date, timeout=20)
 
             if self.df.empty:
-                print(f"[-] No data found for ticker '{self.ticker}' between {self.start_date.date()} and {self.end_date.date()}.\n Exiting.")
+                print(
+                    f"[-] No data found for ticker '{self.ticker}' between {self.start_date.date()} and {self.end_date.date()}.\n Exiting.")
                 exit()
-
 
             print("\n[+] Fetched Data:")
             # Display the first few rows of the DataFrame in console
@@ -146,7 +156,7 @@ class StockData:
             # TICKER OBJECT WILL BE USED THIS METHOD TO GATHER SUBSEQUENT DATA
             ticker_obj = yf.Ticker(self.ticker)
 
-             # Fetch historical market data
+            # Fetch historical market data
             try:
                 historical_data = ticker_obj.history(start=self.start_date, end=self.end_date)
                 description = 'historical_data'
@@ -177,7 +187,6 @@ class StockData:
                 convert_csv_to_excel(csv_filename)
 
                 print("\n[+] General Financials:\n")
-
 
                 print(f"[!] General Finances saved to {csv_filename}")
 
@@ -210,7 +219,6 @@ class StockData:
                 stock_info.to_csv(csv_filename, index=False)
                 convert_csv_to_excel(csv_filename)
 
-
                 print("\n[+] Dividends+Stock_Splits:\n")
                 stock_info_table = PrettyTable()
                 stock_info.field_names = stock_info_table.columns.tolist()
@@ -234,7 +242,6 @@ class StockData:
 
                 print("\n[+] Dividends+Stock_Splits:\n")
 
-
                 '''3:  Fetch major holders '''
 
                 maj_holder = ticker_obj.major_holders
@@ -245,7 +252,6 @@ class StockData:
 
                 print(f"[!] Major Holders saved to:  {csv_filename}")
                 print("\n[+] Major Holders:\n")
-
 
                 '''4: Fetch institutional holders '''
                 inst_holder = ticker_obj.institutional_holders
@@ -267,13 +273,13 @@ class StockData:
             print(f"[-]An error occurred while fetching additional data: {e}")
             exit()
 
-
     '''
         ------- SCRAPING METHODS---------
         1. Financial Docs 
         2. Balance Sheet 
         3. Cash Flow 
     '''
+
     def scrape_financial_documents(self):
         ticker_docs_obj = yf.Ticker(self.ticker)
         '''1:  Fetch financial documents '''
@@ -299,7 +305,6 @@ class StockData:
             csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
             balance_sheet.to_csv(csv_filename, index=False)
             convert_csv_to_excel(csv_filename)
-
 
             print("\n[+] Balance Sheet:\n")
 
@@ -344,7 +349,6 @@ class StockData:
         except Exception as e:
             print(f"[+] an error occurred while scraping key statistics: {e}")
             exit()
-
 
     ''' ----------------- Calculation METHODS ----------------- 
         1. Calculate peaks, drawdowns, significant drops, moving averages.
@@ -412,9 +416,8 @@ class StockData:
             print(f"[!] Error Occurred Saving Data to CSV: {e}")
             traceback.print_exc()
 
-
-
     ''' ----------------- RUN METHOD ----------------- '''
+
     def run(self):
         print("\nFetched Data:")
         self.fetch_data()
@@ -425,7 +428,7 @@ class StockData:
         self.calculate_indicators()
         self.plot_data()
 
-        #self.save_data_to_csv(description='historical_data')
+        # self.save_data_to_csv(description='historical_data')
 
 
 ''' ----------------- Helper Methods ----------------- 
@@ -436,7 +439,6 @@ class StockData:
 
 
 def create_results_folder():
-
     folder_name = "STOCK_RESULTS"
     try:
         # Create the folder if it doesn't exist
@@ -448,6 +450,7 @@ def create_results_folder():
         print(f"Folder '{folder_name}' created with read and write permissions.\n {os.getcwd()}/{folder_name}\n\n ")
     except Exception as e:
         print(f"An error occurred while creating the folder: {e}")
+
 
 def convert_csv_to_excel(csv_file_path, excel_file_path=None):
     """ Convert a CSV file to an Excel file using pandas.
@@ -475,7 +478,6 @@ def convert_csv_to_excel(csv_file_path, excel_file_path=None):
         traceback.print_exc()
 
 
-
 # ----------------- MAIN -----------------
 
 # Example usage:
@@ -485,12 +487,8 @@ if __name__ == "__main__":
         print("[!] Error: No STOCK_RESULTS folder found. Exiting.")
         exit()
 
-    #os.makedirs("STOCK_RESULTS", exist_ok=True)
+    # os.makedirs("STOCK_RESULTS", exist_ok=True)
 
     stock_data = StockData()
     stock_data.run()
     candle_stick = stock_visiual_candlestick.Plot_Candlestick(stock_data.get_stock_ticker())
-
-
-
-

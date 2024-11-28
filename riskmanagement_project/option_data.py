@@ -5,7 +5,6 @@ import yfinance as yf
 import datetime
 import pandas as pd
 
-import main
 
 ''' CLASS - OptionData 
     1. Fetch option data based on user input
