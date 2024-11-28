@@ -291,6 +291,7 @@ class StockData:
             print(f"Data fetched for ticker '{self.ticker}' between {start_date} and {end_date}.")
             return True
 
+
     def fetch_data(self):
         try:
             self.df = yf.download(self.ticker, start=self.start_date, end=self.end_date, timeout=20)
@@ -312,6 +313,39 @@ class StockData:
             print(f"[!] An error occurred while fetching data: {e}")
             print(f"[-] Exiting")
             traceback.print_exc()
+
+
+    def fetch_poly_data(self, start_date=None, end_date=None):
+        """
+        Fetch historical stock data using yfinance.
+
+        Parameters:
+        start_date (datetime): Start date for data fetching.
+        end_date (datetime): End date for data fetching.
+        """
+        if start_date is None:
+            start_date = datetime.datetime.today() - datetime.timedelta(days=365)
+        if end_date is None:
+            end_date = datetime.datetime.today()
+
+        self.df = yf.download(self.ticker, start=start_date.strftime('%Y-%m-%d'),
+                              end=end_date.strftime('%Y-%m-%d'))
+        if self.df.empty:
+            print(f"No data found for ticker '{self.ticker}' between {start_date} and {end_date}.")
+            return False
+        else:
+            print(f"Data fetched for ticker '{self.ticker}' between {start_date} and {end_date}.")
+            return True
+
+    def prepare_poly_data(self):
+        """
+        Prepare the data for regression analysis.
+        """
+        if self.df is not None:
+            self.df.reset_index(inplace=True)
+            self.df['Day'] = np.arange(len(self.df)) + 1  # Create a day counter
+        else:
+            print("Dataframe is empty. Fetch data first.")
 
     def fetch_additional_data(self):
         try:

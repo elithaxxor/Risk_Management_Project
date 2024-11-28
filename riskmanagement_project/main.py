@@ -240,6 +240,97 @@ class StockPredictor(StockData, Parameters):
         else:
             print("Data fetching failed. Exiting.")
 
+class StockPredictorPolynomial(StockData):
+    def __init__(self, ticker, degree=2):
+        super().__init__(ticker)
+        self.regressor = PolynomialRegressor(degree=degree)
+        self.X = None
+        self.y = None
+        self.data = StockData()
+
+        print("DATES FOUND ARE: ", self.start_date, self.end_date)
+        print("DATES FOUND ARE: ", self.data.start_date, self.data.end_date)
+        print("TICKER FOUND IS: ", self.ticker)
+
+
+    def prepare_data(self):
+        """
+        Prepare the data for regression analysis.
+        """
+        super().prepare_data()
+        if self.df is not None:
+            self.X = self.df['Day'].values
+            self.y = self.df['Close'].values
+        else:
+            print("Dataframe is empty. Cannot prepare data.")
+
+    def fit_model(self):
+        """
+        Fit the polynomial regression model using the prepared data.
+        """
+        if self.X is not None and self.y is not None:
+            self.regressor.fit(self.X, self.y)
+        else:
+            print("Data not prepared. Cannot fit model.")
+
+    def predict_future_prices(self, days_ahead=3):
+        """
+        Predict future stock prices for the next 'days_ahead' days.
+
+        Parameters:
+        days_ahead (int): Number of future days to predict.
+        """
+        if self.X is None:
+            print("Model has not been trained or data not prepared.")
+            return
+
+        last_day = self.X[-1]
+        X_future = [last_day + i for i in range(1, days_ahead + 1)]
+        predictions = self.regressor.predict(X_future)
+        print(f"Predicted prices for days {X_future}: {predictions}")
+
+        # Create a DataFrame from the predictions
+        df_predictions = pd.DataFrame({
+            'Day': X_future,
+            'Predicted Price': predictions
+        })
+
+        # Ensure the directory exists
+        os.makedirs('POLYNOMIAL_REGRESSION_RESULTS', exist_ok=True)
+
+        # Save the DataFrame to CSV
+        csv_filename = os.path.join('POLYNOMIAL_REGRESSION_RESULTS', f'{self.ticker}_future_predictions.csv')
+        df_predictions.to_csv(csv_filename, index=False)
+        print(f"Predictions saved to {csv_filename}")
+
+        # Optionally, save to Excel
+        excel_filename = os.path.join('POLYNOMIAL_REGRESSION_RESULTS', f'{self.ticker}_future_predictions.xlsx')
+        df_predictions.to_excel(excel_filename, index=False)
+        print(f"Predictions also saved to {excel_filename}")
+
+        return X_future, predictions
+
+    def plot_regression_curve(self):
+        """
+        Plot the polynomial regression curve along with the data points.
+        """
+        self.regressor.plot_regression_curve()
+
+    def run(self):
+        """
+        Execute the workflow of fetching data, training the model, and making predictions.
+        """
+        data_fetched = self.fetch_poly_data(self.data.start_date, self.data.end_date)
+        print("\n[!] Data fetched for polynomial regression analysis.\n", data_fetched)
+
+        if data_fetched:
+            self.prepare_data()
+            self.fit_model()
+            self.predict_future_prices(days_ahead=3)
+            self.plot_regression_curve()
+        else:
+            print("Data fetching failed. Exiting.")
+
 class OptionSimulator:
     def __init__(self, parameters):
         self.parameters = parameters
