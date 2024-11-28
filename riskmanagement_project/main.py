@@ -240,6 +240,92 @@ class StockPredictor(StockData, Parameters):
         else:
             print("Data fetching failed. Exiting.")
 
+
+
+
+################## ---------------------------- POLYNOMIAL REGRESSION -----------------__ ################
+
+
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+
+class PolynomialRegressor:
+    def __init__(self, degree=2):
+        """
+        Initialize the PolynomialRegressor class.
+
+        Parameters:
+        degree (int): The degree of the polynomial features.
+        """
+        self.degree = degree
+        self.poly_features = PolynomialFeatures(degree=self.degree)
+        self.model = LinearRegression()
+        self.X_poly = None
+        self.X = None
+        self.y = None
+
+    def fit(self, X, y):
+        """
+        Fit the polynomial regression model using the provided data.
+
+        Parameters:
+        X (array-like): Feature data.
+        y (array-like): Target data.
+        """
+        self.X = np.array(X).reshape(-1, 1)
+        self.y = np.array(y)
+        self.X_poly = self.poly_features.fit_transform(self.X)
+        self.model.fit(self.X_poly, self.y)
+        print(f"Model training completed with polynomial degree {self.degree}.")
+
+    def predict(self, X_new):
+        """
+        Predict using the polynomial regression model.
+
+        Parameters:
+        X_new (array-like): New feature data for prediction.
+
+        Returns:
+        array: Predicted target values.
+        """
+        X_new = np.array(X_new).reshape(-1, 1)
+        X_new_poly = self.poly_features.transform(X_new)
+        predictions = self.model.predict(X_new_poly)
+        return predictions
+
+    def plot_regression_curve(self):
+        """
+        Plot the polynomial regression curve along with the data points.
+        """
+        if self.X is None or self.y is None:
+            raise ValueError("Model has not been trained yet. Call the 'fit' method first.")
+
+        # Generate a sequence of values for plotting the regression curve
+        X_sequence = np.linspace(self.X.min(), self.X.max(), 300).reshape(-1, 1)
+        X_sequence_poly = self.poly_features.transform(X_sequence)
+        y_pred_sequence = self.model.predict(X_sequence_poly)
+
+        # Plotting
+        plt.scatter(self.X, self.y, color='blue', label='Actual Data')
+        plt.plot(X_sequence, y_pred_sequence, color='red', linewidth=2, label='Regression Curve')
+        plt.title(f'Polynomial Regression (Degree {self.degree})')
+        plt.xlabel('Independent Variable')
+        plt.ylabel('Dependent Variable')
+        plt.legend()
+        plt.show()
+
+    def get_coefficients(self):
+        """
+        Get the coefficients of the polynomial regression model.
+
+        Returns:
+        tuple: (coefficients, intercept)
+        """
+        coeffs = self.model.coef_
+        intercept = self.model.intercept_
+        return coeffs, intercept
+
+
 class StockPredictorPolynomial(StockData):
     def __init__(self, ticker, degree=2):
         super().__init__(ticker)
@@ -247,6 +333,7 @@ class StockPredictorPolynomial(StockData):
         self.X = None
         self.y = None
         self.data = StockData()
+        self.ticker = data.ticker
 
         print("DATES FOUND ARE: ", self.start_date, self.end_date)
         print("DATES FOUND ARE: ", self.data.start_date, self.data.end_date)
