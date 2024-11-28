@@ -674,6 +674,7 @@ class StockData:
     '''
 
 
+
 def create_results_folder():
     folder_name = "STOCK_RESULTS"
     try:
@@ -701,7 +702,18 @@ def create_regression_folder():
         print(f"An error occurred while creating the folder: {e}")
 
 
+def create_polynomial_folder():
+    folder_name = "POLYNOMIAL_REGRESSION_RESULTS"
+    try:
+        # Create the folder if it doesn't exist
+        os.makedirs(folder_name, exist_ok=True)
 
+        # Set read and write permissions
+        os.chmod(folder_name, 0o777)
+
+        print(f"Folder '{folder_name}' created with read and write permissions.\n {os.getcwd()}/{folder_name}\n\n ")
+    except Exception as e:
+        print(f"An error occurred while creating the folder: {e}")
 def convert_csv_to_excel(csv_file_path, excel_file_path=None):
     """ Convert a CSV file to an Excel file using pandas.
     :param csv_file_path: Path to the input CSV file.

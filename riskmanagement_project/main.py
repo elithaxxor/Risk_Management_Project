@@ -312,6 +312,14 @@ class PolynomialRegressor:
         plt.xlabel('Independent Variable')
         plt.ylabel('Dependent Variable')
         plt.legend()
+
+
+        description = f'{Parameters.stock_symbol}_polynomial_regression_results'
+        output_file = f"{description}.png"
+        plt.savefig(output_file, dpi=300, bbox_inches='tight')
+        print(f'[!] Graph saved to {output_file}')
+
+
         plt.show()
 
     def get_coefficients(self):
