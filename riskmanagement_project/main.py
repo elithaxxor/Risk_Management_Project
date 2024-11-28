@@ -130,6 +130,14 @@ class SimpleLinearRegressor:
         plt.xlabel('Day Number')
         plt.ylabel('Stock Price')
         plt.legend()
+
+        description = f'{Parameters.stock_symbol}_regression_results'
+        output_file = f"{description}.png"
+
+        plt.savefig(output_file, dpi=300, bbox_inches='tight')
+        print(f'[!] Graph saved to {output_file}')
+
+
         plt.show()
 
     def get_coefficients(self):
@@ -165,10 +173,6 @@ class StockPredictor(StockData, Parameters):
             self.y = self.df['Close'].values
         else:
             print("Dataframe is empty. Cannot prepare data.")
-            reg = StockData.simple_regression
-            self.X, self.Y = StockData.simple_regression
-            print("[!] Data has been prepared for regression analysis.")
-            print(f"X: {self.X}\n Y: {self.Y}")
 
     def fit_model(self):
         """Fit the regression model using the prepared data."""
@@ -187,6 +191,17 @@ class StockPredictor(StockData, Parameters):
         X_future = [last_day + i for i in range(1, days_ahead + 1)]
         predictions = self.regressor.predict(X_future)
         print(f"Predicted prices for days {X_future}: {predictions}")
+
+        description = f"{self.ticker}_regression_results"
+        df = pd.DataFrame({'Day': X_future, 'Predicted Price': predictions})
+
+        os.makedirs("LINEAR_REGRESSION_RESULTS", exist_ok=True)
+        csv_filename = os.path.join("LINEAR_REGRESSION_RESULTS", f"{description}.csv")
+        excel_filename = os.path.join("LINEAR_REGRESSION_RESULTS", f"{description}.xlsx")
+
+        df.to_csv(csv_filename, index=False)
+        df.to_excel(excel_filename, index=False)
+
         return X_future, predictions
 
     def plot_regression_line(self):

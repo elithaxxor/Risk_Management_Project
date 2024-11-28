@@ -190,12 +190,12 @@ class StockData:
 
     def prepare_data(self):
         """Prepare the data for regression analysis."""
-        super().prepare_data()
         if self.df is not None:
-            self.X = self.df['Day'].values
-            self.y = self.df['Close'].values
+            self.df.reset_index(inplace=True)
+            self.df['Day'] = np.arange(len(self.df)) + 1  # Create a day counter
         else:
-            print("Dataframe is empty. Cannot prepare data.")
+            print("Dataframe is empty. Fetch data first.")
+
 
     """ 1. Parse the end date input and return a datetime object."""
 
