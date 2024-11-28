@@ -12,6 +12,55 @@ from stock_data import StockData
 from main import Parameters
 
 
+
+class SimpleLinearRegressor:
+    def __init__(self):
+        self.model = None
+        self.X = None
+        self.y = None
+
+    def fit(self, X, y):
+        """Fit the linear regression model using the provided data."""
+        self.X = np.array(X).reshape(-1, 1)
+        self.y = np.array(y)
+
+        self.model = LinearRegression()
+        self.model.fit(self.X, self.y)
+        print("Model training completed.")
+
+    def predict(self, X_new):
+        """Predict using the linear regression model."""
+        if self.model is None:
+            raise ValueError("Model has not been trained yet. Call the 'fit' method first.")
+
+        X_new_reshaped = np.array(X_new).reshape(-1, 1)
+        predictions = self.model.predict(X_new_reshaped)
+        return predictions
+
+    def plot_regression_line(self):
+        """Plot the regression line along with the data points."""
+        if self.model is None or self.X is None or self.y is None:
+            raise ValueError("Model has not been trained yet. Call the 'fit' method first.")
+
+        y_pred = self.model.predict(self.X)
+
+        plt.scatter(self.X, self.y, color='blue', label='Actual Data')
+        plt.plot(self.X, y_pred, color='red', linewidth=2, label='Regression Line')
+        plt.title('Simple Linear Regression')
+        plt.xlabel('Day Number')
+        plt.ylabel('Stock Price')
+        plt.legend()
+        plt.show()
+
+    def get_coefficients(self):
+        """Get the coefficients of the linear regression model."""
+        if self.model is None:
+            raise ValueError("Model has not been trained yet. Call the 'fit' method first.")
+
+        slope = self.model.coef_[0]
+        intercept = self.model.intercept_
+        return slope, intercept
+
 class StockPredictor(StockData, Parameters):
     def __init__(self):
         super().__init__()

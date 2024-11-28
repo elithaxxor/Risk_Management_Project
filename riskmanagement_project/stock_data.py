@@ -12,7 +12,8 @@ from bs4 import BeautifulSoup as bs
 from mplfinance.original_flavor import candlestick_ohlc
 import matplotlib.dates as mdates
 
-from simple_regression_scratch import StockPredictor
+#from simple_regression_scratch import StockPredictor
+#from simple_regression_scratch import SimpleLinearRegressor
 
 # import stock_visiual_candlestick
 
@@ -205,7 +206,6 @@ class StockData:
         except ValueError:
             print("[!] Invalid date format. Please enter the date in YYYY-MM-DD format. \n Exiting.")
             traceback.print_exc()
-            exit()
 
     """2. Parse the max drop input and return it as a float."""
 
@@ -216,7 +216,6 @@ class StockData:
         except ValueError:
             print("[-] Invalid input for maximum drop amount. Please enter a numerical value. \n Exiting.")
             traceback.print_exc()
-            exit()
 
     """3. Parse the moving average input and return a list of integers."""
 
@@ -236,7 +235,6 @@ class StockData:
             except ValueError:
                 print(f"[-] Invalid moving average period: {ma}. Please enter integer values. \n Exiting.")
                 traceback.print_exc()
-                exit()
 
         # Create a DataFrame from the moving averages
 
@@ -256,7 +254,7 @@ class StockData:
             print(f"\n\n[-] An error occurred while saving moving averages: {e}")
             traceback.print_exc()
 
-        return moving_averages
+        #return moving_averages
 
     ''' ----------------- FETCH METHODS ----------------- 
         1. Fetch historical data using yfinance. Store in memory AND locally 
@@ -292,7 +290,7 @@ class StockData:
             if self.df.empty:
                 print(
                     f"[-] No data found for ticker '{self.ticker}' between {self.start_date.date()} and {self.end_date.date()}.\n Exiting.")
-                exit()
+
 
             print("\n[+] Fetched Data:")
             # Display the first few rows of the DataFrame in console
@@ -307,7 +305,7 @@ class StockData:
             print(f"[!] An error occurred while fetching data: {e}")
             print(f"[-] Exiting")
             traceback.print_exc()
-            exit()
+
 
     def fetch_additional_data(self):
         try:
@@ -458,11 +456,9 @@ class StockData:
             except Exception as e:
                 print(f"[-] An error occurred while fetching additional data: {e}")
                 traceback.print_exc()
-                exit()
 
         except Exception as e:
             print(f"[-]An error occurred while fetching additional data: {e}")
-            exit()
 
     '''
         ------- SCRAPING METHODS---------
@@ -539,7 +535,6 @@ class StockData:
 
         except Exception as e:
             print(f"[+] an error occurred while scraping key statistics: {e}")
-            exit()
 
     ''' ----------------- Calculation METHODS ----------------- 
         1. Calculate peaks, drawdowns, significant drops, moving averages.
@@ -556,7 +551,7 @@ class StockData:
                 self.df['Close'] = self.df['Adj Close']
             else:
                 print("Neither 'Close' nor 'Adj Close' columns are present.")
-                exit()
+
         # Ensure 'Close' is a Series
         if isinstance(self.df['Close'], pd.DataFrame):
             self.df['Close'] = self.df['Close'].iloc[:, 0]
@@ -567,7 +562,7 @@ class StockData:
             self.df['Peak'] = self.df['Peak'].iloc[:, 0]
 
         # Calculate drawdowns from the peaks
-        self.df['Drawdown'] = self.df['Peak'] - self.df['Close']
+       # self.df['Drawdown'] = self.df['Peak'].cummax() - self.df['Close'].cummax()
         # Identify periods where the drawdown is equal to or exceeds the max drop
         self.df['Significant Drop'] = self.df['Drawdown'] >= self.max_drop
 
@@ -626,8 +621,8 @@ class StockData:
         # candle_stick = stock_visiual_candlestick.Plot_Candlestick(self.ticker)
         # candle_stick.visualization()
 
-        self.calculate_indicators()
-        self.plot_data()
+      #  self.calculate_indicators()
+      #  self.plot_data()
 
         # self.save_data_to_csv(description='historical_data')
 
@@ -779,8 +774,7 @@ class StockVisualizer(StockData):
 if __name__ == "__main__":
     create_results_folder()
     if not os.path.exists("STOCK_RESULTS"):
-        print("[!] Error: No STOCK_RESULTS folder found. Exiting.")
-        exit()
+        print("[-] Error: No STOCK_RESULTS folder found. Exiting.")
 
     # os.makedirs("STOCK_RESULTS", exist_ok=True)
 
@@ -798,5 +792,6 @@ if __name__ == "__main__":
     print("[+] Financial Data Downloading...")
     download_financial_data = FinancialDataDownloader(ticker)
     download_financial_data.download_financial_data()
+
 
     # candle_stick = stock_visiual_candlestick.Plot_Candlestick(ticker)
