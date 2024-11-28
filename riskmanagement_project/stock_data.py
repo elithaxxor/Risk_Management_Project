@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import yfinance as yf
 from bs4 import BeautifulSoup as bs
-import stock_visiual_candlestick
+#import stock_visiual_candlestick
 
 ''' 
     ** Class to fetch stock data: STORING TO MEMORY, TO REFACTOR FOR BETTER READBILITY / ABILITY TO ACCESS DATA AMOUNGST VARYING METHODS/CALLS" 
@@ -557,8 +557,8 @@ class StockData:
         self.scrape_key_statistics()
 
         print("\n[+] Calculating Indicators, Plotting Data, and Saving to CSV:")
-        candle_stick = stock_visiual_candlestick.Plot_Candlestick(self.ticker)
-        candle_stick.visualization()
+       # candle_stick = stock_visiual_candlestick.Plot_Candlestick(self.ticker)
+       # candle_stick.visualization()
 
         self.calculate_indicators()
         self.plot_data()
@@ -643,4 +643,4 @@ if __name__ == "__main__":
     download_financial_data = FinancialDataDownloader(ticker)
     download_financial_data.download_financial_data()
 
-    candle_stick = stock_visiual_candlestick.Plot_Candlestick(ticker)
+    #candle_stick = stock_visiual_candlestick.Plot_Candlestick(ticker)
