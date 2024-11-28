@@ -22,6 +22,7 @@ import openpyxl as px
 import stock_data
 from stock_data import StockData
 from stock_data import FinancialDataDownloader
+from stock_data import StockVisualizer
 
 
 # from option_data import OptionData
@@ -315,13 +316,27 @@ if __name__ == "__main__":
             self.runStock.run()
 
 
+    class runStockCandleSticks:
+        def __init__(self):
+            self.runCandle = StockVisualizer()
+            self.runCandle.run() ## data is subclassed from stockdata page, so no need to fill in info. may have a bug tho
+
+        def run(self):
+            self.runCandle.run()
+
+
+
     print("ATTEMPTING TO ACCESSS STOCK DATA CLASS")
     run_stock = StockDataFetch(parameters)
     run_stock.runClass()
+    runVisualizer = runStockCandleSticks()
 
     current_ticker = run_stock.get_stock_ticker()
     download_fin_data = FinancialDataDownloader
     download_fin_data.download_financial_data(current_ticker)
+    runVisualizer.run()
+
+    print("FINISHED RUNNING STOCK DATA CLASS")
 
 # import os
 # import time

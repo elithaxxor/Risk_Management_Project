@@ -6,6 +6,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import yfinance as yf
 from bs4 import BeautifulSoup as bs
+from matplotlib import DateFormatter
+#from matplotlib.finance import candlestick_ohlc
+from mplfinance.original_flavor import candlestick_ohlc
+
 #import stock_visiual_candlestick
 
 ''' 
@@ -617,6 +621,93 @@ def convert_csv_to_excel(csv_file_path, excel_file_path=None):
         pass
 
 
+
+class StockVisualizer(StockData):
+    """Subclass of StockData that adds visualization capabilities."""
+
+    def __init__(self):
+        super().__init__()
+
+    def plot_data(self):
+        """Plot the data with moving averages and significant drops."""
+        if self.df is None or self.df.empty:
+            print("[!] No data to plot.")
+            return
+
+        plt.figure(figsize=(14, 7))
+        plt.plot(self.df['Date'], self.df['Close'], label=f'{self.ticker} Price', color='blue')
+        # Plot moving averages
+        for ma in self.moving_averages:
+            plt.plot(self.df['Date'], self.df[f'MA_{ma}'], label=f'MA {ma}')
+        # Highlight significant drops
+        plt.fill_between(self.df['Date'], self.df['Close'], where=self.df['Significant Drop'], color='red', alpha=0.5,
+                         label=f'Drop ≥ {self.max_drop} points')
+        # Customize the plot
+        plt.title(f'{self.ticker} Price from {self.start_date.date()} to {self.end_date.date()}')
+        plt.xlabel('Date')
+        plt.ylabel('Price')
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+
+        # Save the plot
+        plot_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_price_plot.png")
+        plt.savefig(plot_filename)
+        print(f"[!] Plot saved to {plot_filename}")
+
+        # Display the plot
+        plt.show()
+
+    def plot_candlestick(self):
+        """Plot candlestick chart with moving averages."""
+        if self.df is None or self.df.empty:
+            print("[!] No data to plot.")
+            return
+
+        # Prepare data
+        self.df['Date_Num'] = mdates.date2num(self.df['Date'])
+        ohlc_data = self.df[['Date_Num', 'Open', 'High', 'Low', 'Close']].copy()
+
+        fig, ax = plt.subplots(figsize=(14, 7))
+
+        # Plot candlestick chart
+        candlestick_ohlc(ax, ohlc_data.values, width=0.6, colorup='green', colordown='red', alpha=0.8)
+
+        # Plot moving averages
+        for ma in self.moving_averages:
+            ax.plot(self.df['Date_Num'], self.df[f'MA_{ma}'], label=f'MA {ma}')
+
+        # Format x-axis dates
+        ax.xaxis_date()
+        ax.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d'))
+        plt.xticks(rotation=45)
+
+        # Add grid, legend, and labels
+        ax.grid(True)
+        ax.legend()
+        plt.title(f"{self.ticker} Stock Price")
+        plt.xlabel("Date")
+        plt.ylabel("Price")
+
+        plt.tight_layout()
+
+        # Save the plot
+        plot_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_candlestick_plot.png")
+        plt.savefig(plot_filename)
+        print(f"[!] Candlestick plot saved to {plot_filename}")
+
+        # Display the plot
+        plt.show()
+
+    def run(self):
+        """Run the data fetching and visualization."""
+        super().run()
+        print("\n[+] Plotting Data:")
+        self.plot_data()
+        print("[+] Plotting Candlestick Chart:")
+        self.plot_candlestick()
+
+        # Save the DataFrame to a CSV file
 # ----------------- MAIN -----------------
 
 # Example usage:
