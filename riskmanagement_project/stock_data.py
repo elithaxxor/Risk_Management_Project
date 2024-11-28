@@ -146,6 +146,9 @@ class StockData:
     def get_stock_ticker(self):
         return self.ticker
 
+    def get_stock_start_date(self):
+        return self.start_date
+
     def get_stock_end_date(self):
         return self.end_date
 
@@ -275,7 +278,10 @@ class StockData:
             if end_date is None:
                 end_date = datetime.datetime.today()
 
-            self.df = yf.download(self.ticker, start=start_date.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'))
+            start_date_str = self.start_date.strftime('%Y-%m-%d')
+            end_date_str = self.end_date.strftime('%Y-%m-%d')
+
+            self.df = yf.download(self.ticker, start=start_date_str, end=end_date_str)
             if self.df.empty:
                 print(f"No data found for ticker '{self.ticker}' between {start_date} and {end_date}.")
                 return False

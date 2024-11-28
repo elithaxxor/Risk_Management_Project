@@ -148,6 +148,9 @@ class StockPredictor(StockData, Parameters):
         self.X = None
         self.y = None
         self.ticker = Parameters.stock_symbol
+        self.start_date = StockData.get_stock_start_date
+        self.end_date = StockData.get_stock_end_date
+
 
     def prepare_data(self):
         """Prepare the data for regression analysis."""
@@ -187,12 +190,16 @@ class StockPredictor(StockData, Parameters):
 
     def run(self):
         """Execute the workflow of fetching data, training the model, and making predictions."""
-        data_fetched = self.fetch_regression_data(start_date=self.start_date,
-                                       end_date=self.end_date_input)
+
+        start_date_str = self.start_date
+        end_date_str = self.end_date
+
+        data_fetched = self.fetch_regression_data(start_date=start_date_str, end_date=end_date_str)
+
 
         print("[!] Fetching for regression data...\n dates are: ", self.start_date, self.end_date_input)
 
-
+        print(data_fetched)
         if data_fetched:
             self.prepare_data()
             self.fit_model()
