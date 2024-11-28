@@ -1,6 +1,7 @@
 import datetime, traceback, requests
 import os
 
+import numpy as np
 from prettytable import PrettyTable
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -10,6 +11,8 @@ from bs4 import BeautifulSoup as bs
 # from matplotlib.finance import candlestick_ohlc
 from mplfinance.original_flavor import candlestick_ohlc
 import matplotlib.dates as mdates
+
+from simple_regression_scratch import StockPredictor
 
 # import stock_visiual_candlestick
 
@@ -114,11 +117,19 @@ class StockData:
         self.moving_averages = self._parse_moving_averages(self.moving_averages_input)
         self.start_date = self.end_date - datetime.timedelta(days=365)
 
+
+        #self.df = None
+
+        self.df = yf.download(self.ticker, start=self.start_date.strftime('%Y-%m-%d'), end=self.end_date.strftime('%Y-%m-%d'))
+        self.df['Date'] = self.df.index
+        self.df['Price'] = self.df['Close']
+
+
         ''' 
             1. Initialize the DataFrame ---> REMEMBER NOT TO STORE DATA IN MEMORY, USE METHODS TO ACCESS DATA
             2. DO NOT GET conventianal "df" confused with other dataframes and method calls. 
         '''
-        self.df = None
+       # self.df = None
 
     ''' ----------------- PARSING METHODS ----------------- 
         1. Parse the end date input and return a datetime object.
@@ -142,6 +153,45 @@ class StockData:
 
     def get_stock_moving_averages(self):
         return self.moving_averages
+
+    def simple_regression(self):
+
+        try:
+            self.df = yf.download(self.ticker, start=self.start_date.strftime('%Y-%m-%d'), end=self.end_date.strftime('%Y-%m-%d'))
+            self.df['Date'] = self.df.index
+            self.df['Price'] = self.df['Close']
+
+            if self.df.empty:
+                print(f"No data found for ticker '{self.ticker}' between {self.start_date} and {self.end_date}.")
+            else:
+                print(f"Data fetched for ticker '{self.ticker}' between {self.start_date} and {self.end_date}.")
+
+            if self.df is not None:
+                self.df.reset_index(inplace=True)
+                self.df['Day'] = np.arange(len(self.df)) + 1  # Create a day counter
+            else:
+                self.X, self.Y = StockData.simple_regression
+                print("[!] Data has been prepared for regression analysis.")
+                print(f"X: {self.X}\n Y: {self.Y}")
+                print("Dataframe is empty. Fetch data first.")
+
+            return self.df['Date'], self.df['Close']
+
+
+            #regression = StockPriceRegression(self.df)
+
+        except Exception as e:
+            print(f"Error fetching data: {e}")
+            traceback.print_exc()
+
+    def prepare_data(self):
+        """Prepare the data for regression analysis."""
+        super().prepare_data()
+        if self.df is not None:
+            self.X = self.df['Day'].values
+            self.y = self.df['Close'].values
+        else:
+            print("Dataframe is empty. Cannot prepare data.")
 
     """ 1. Parse the end date input and return a datetime object."""
 
@@ -218,6 +268,22 @@ class StockData:
         2. Store locally 
         3. Display Prettify in console 
     """
+
+
+    def fetch_regression_data(self, start_date=None, end_date=None):
+            """Fetch historical stock data using yfinance."""
+            if start_date is None:
+                start_date = datetime.datetime.today() - datetime.timedelta(days=365)
+            if end_date is None:
+                end_date = datetime.datetime.today()
+
+            self.df = yf.download(self.ticker, start=start_date.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'))
+            if self.df.empty:
+                print(f"No data found for ticker '{self.ticker}' between {start_date} and {end_date}.")
+                return False
+            else:
+                print(f"Data fetched for ticker '{self.ticker}' between {start_date} and {end_date}.")
+                return True
 
     def fetch_data(self):
         try:
@@ -564,6 +630,14 @@ class StockData:
         self.plot_data()
 
         # self.save_data_to_csv(description='historical_data')
+
+
+
+
+
+
+
+
 
 
 ''' ----------------- Helper Methods ----------------- 
