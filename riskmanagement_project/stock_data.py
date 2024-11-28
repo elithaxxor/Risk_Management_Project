@@ -24,7 +24,7 @@ from fpdf import FPDF
 
 
 class FinancialDataDownloader:
-    def __init__(self, ticker_symbol, output_directory="STOCK_RESULTS"):
+    def __init__(self, ticker_symbol, output_directory="financial_documents"):
         self.ticker_symbol = ticker_symbol
         self.output_directory = output_directory
         self.ticker = yf.Ticker(ticker_symbol)
@@ -249,15 +249,19 @@ class StockData:
                 historical_data = ticker_obj.history(start=self.start_date, end=self.end_date)
                 description = 'historical_data'
                 file_destination = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}")
-                csv_filename = os.path.join(file_destination, f"{self.ticker}_{description}.csv")
-                excel_filename = os.path.join(file_destination, f"{self.ticker}_{description}.xlsx")
+                csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
+                excel_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.xlsx")
+
 
 
                 historical_data_pd = pd.DataFrame(historical_data)
 
+                if not isinstance(historical_data, pd.DataFrame):
+                    historical_data = pd.DataFrame(historical_data)
+
                 # Save to CSV
-                historical_data_pd.to_csv(csv_filename, index=False)
-                historical_data_pd.to_excel(excel_filename, index=False)
+                historical_data.to_csv(csv_filename, index=False)
+                historical_data.to_excel(excel_filename, index=False)
 
                 print(f"\n[+] Historical Data saved to {csv_filename} and {excel_filename}")
                 historical_data_table = PrettyTable()
@@ -270,6 +274,7 @@ class StockData:
             except Exception as e:
                 print(f"[!] Error Occurred Saving Data to CSV: {e}")
                 traceback.print_exc()
+                pass
 
             # Fetch financial data
             try:
@@ -317,7 +322,7 @@ class StockData:
                 description = 'stock_info'
 
                 csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
-                stock_info.to_csv(csv_filename, index=False)
+                #stock_info.to_csv(csv_filename, index=False)
                 convert_csv_to_excel(csv_filename)
 
                 print("\n[+] Dividends+Stock_Splits:\n")
@@ -346,9 +351,13 @@ class StockData:
                 '''3:  Fetch major holders '''
 
                 maj_holder = ticker_obj.major_holders
+                #holders = ticker_obj.major_holders.to_records(index=False)
+
                 description = 'major_holders'
                 csv_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.csv")
                 excel_filename = os.path.join("STOCK_RESULTS", f"{self.ticker}_{description}.xlsx")
+
+
 
                 # Ensure destination directory exists
                 #os.makedirs(os.path.dirname(csv_filename), exist_ok=True)
@@ -537,12 +546,28 @@ class StockData:
     def run(self):
         print("\nFetched Data:")
         self.fetch_data()
+        print("[+] Financial Data Downloading...")
+
+        download_financial_data1 = FinancialDataDownloader(self.ticker)
+        download_financial_data1.download_financial_data()
+
+        print("[+] Additional Data Downloading...")
         self.fetch_additional_data()
         self.scrape_financial_documents()
         self.scrape_key_statistics()
 
+        print("\n[+] Calculating Indicators, Plotting Data, and Saving to CSV:")
+        candle_stick = stock_visiual_candlestick.Plot_Candlestick(self.ticker)
+        candle_stick.visualization()
+
         self.calculate_indicators()
         self.plot_data()
+
+
+
+
+
+
 
         # self.save_data_to_csv(description='historical_data')
 
@@ -605,5 +630,17 @@ if __name__ == "__main__":
 
     stock_data = StockData()
     stock_data.run()
-    download_financial_data = FinancialDataDownloader(stock_data.get_stock_ticker())
-    candle_stick = stock_visiual_candlestick.Plot_Candlestick(stock_data.get_stock_ticker())
+
+    print("[+] STOCK DATA RUN OVER ")
+    ticker_addy = stock_data.get_stock_ticker()
+    ticker = stock_data.ticker # Get the ticker symbol
+
+    print("\n\nStock Data: ", stock_data)
+    print("\n\nStock Ticker: ", ticker)
+    print("Stock Ticker Address: ", ticker_addy)
+
+    print("[+] Financial Data Downloading...")
+    download_financial_data = FinancialDataDownloader(ticker)
+    download_financial_data.download_financial_data()
+
+    candle_stick = stock_visiual_candlestick.Plot_Candlestick(ticker)

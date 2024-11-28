@@ -2,7 +2,7 @@ import yfinance as yf
 import os
 
 # Define the ticker and output directory
-ticker_symbol = "GOOG"
+ticker_symbol = "AAPL"
 output_directory = "financial_documents"
 
 # Create the output directory if it doesn't exist
