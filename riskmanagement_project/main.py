@@ -5,7 +5,6 @@ from scipy.stats import norm
 from prettytable import PrettyTable
 import os
 import time
-
 import os
 import time
 import traceback
@@ -406,7 +405,12 @@ class StockPredictorPolynomial(StockData):
                 # Optionally, save to Excel
                 excel_filename = os.path.join('POLYNOMIAL_REGRESSION_RESULTS', f'{self.ticker}_future_predictions.xlsx')
                 df_predictions.to_excel(excel_filename, index=False)
+
                 print(f"Predictions also saved to {excel_filename}")
+
+            except Exception as e:
+                print(f"[-] Error saving data: {e}")
+
 
         else:
             print("Data not prepared. Cannot predict future prices.")
